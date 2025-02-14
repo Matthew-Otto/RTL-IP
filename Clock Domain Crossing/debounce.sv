@@ -1,4 +1,4 @@
-// Debounces input froma physical button. 
+// Debounces input from a physical button. 
 // Optionally outputs a single one-cycle pulse per button press if STROBE is selected
 
 module debounce #(parameter CLK_FREQ, parameter STROBE = 1) (
