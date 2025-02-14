@@ -1,6 +1,9 @@
 // Transmit a pulsed signal between clock domains
 
-module cdc_pulse_f2s (
+/********** potential issues **********/
+// if slow_clk period is within 1.5x fast_clk period, slow_output may be asserted for more than one cycle in the slow_clk domain
+
+module cdc_pulse_f2s #(parameter PULSE = 0) (
   // faster domain
   input  logic fast_clk,
   input  logic fast_input,
@@ -10,12 +13,26 @@ module cdc_pulse_f2s (
 );
   // assert on rising edge of fast_input (@posedge fast_clk), deassert on synchronized rising edge of slow_clk
   logic slow_clk_re;
+  logic stretch;
 
-  cdc_pulse_s2f(.slow_input(slow_clk), .fast_clk, .fast_output(slow_clk_re));
+  cdc_pulse_s2f(.slow_input(slow_clk & stretch), .fast_clk, .fast_output(slow_clk_re));
 
   always @(posedge fast_clk) begin
-    slow_output <= (fast_input | slow_output) & ~slow_clk_re;
+    stretch <= (fast_input | stretch) & ~slow_clk_re;
   end
+
+  // single shot
+  generate
+    if (PULSE) begin
+      logic kill;
+      always @(posedge slow_clk) begin
+        kill <= stretch;
+      end
+      assign slow_output = stretch & ~kill;
+    end else begin
+      assign slow_output = stretch;
+    end
+  endgenerate
 
 endmodule // cdc_pulse_f2s
 
