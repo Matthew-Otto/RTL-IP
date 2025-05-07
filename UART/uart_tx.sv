@@ -7,17 +7,17 @@ module uart_tx #(CLK_RATE, BAUD_RATE)(
     input [7:0] data_in,
 
     output logic data_write_ready,
-    output logic txd_out
+    output logic tx
 );
 
-localparam PACKET_SIZE = 10;
-localparam CLKS_PER_BAUD = int'(CLK_RATE / BAUD_RATE);
+localparam int PACKET_SIZE = 10;
+localparam int CLKS_PER_BAUD = CLK_RATE / BAUD_RATE;
 
 localparam 
-    IDLE = 2'b00,
-    LOAD = 2'b01,
+    IDLE  = 2'b00,
+    LOAD  = 2'b01,
     SHIFT = 2'b10,
-    WAIT = 2'b11;
+    WAIT  = 2'b11;
 
 logic [1:0] state;
 logic [9:0] shift_reg;
@@ -29,7 +29,7 @@ logic [7:0] data_reg;
 
 
 assign data_write_ready = ~buffer_full;
-assign txd_out = shift_reg[bit_cnt];
+assign tx = shift_reg[bit_cnt];
 
 always @(posedge clk, posedge areset) begin
     if (areset) begin
@@ -78,14 +78,15 @@ always @(posedge clk, posedge areset) begin
 
             SHIFT : begin
                 clk_cnt <= CLKS_PER_BAUD - 2;
-                if (bit_cnt+1 < PACKET_SIZE) begin
-                    state <= WAIT;
+                if (bit_cnt == (PACKET_SIZE-1)) begin
+                    if (buffer_full)
+                        state <= LOAD;
+                    else
+                        state <= IDLE;
+                end else begin
                     bit_cnt <= bit_cnt + 1;
-                end else if (buffer_full)
-                    state <= LOAD;
-                else
-                    state <= IDLE;
-               
+                    state <= WAIT;
+                end
             end
         endcase
     end

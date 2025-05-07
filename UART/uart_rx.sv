@@ -1,10 +1,5 @@
 // UART RX module
 
-// 100MHz - 1MBaud
-// FLOP_LATCH 56
-// LUT 49
-// CARRY 8
-
 module uart_rx #(CLK_RATE, BAUD_RATE)(
     input clk,
     input areset,
@@ -16,18 +11,19 @@ module uart_rx #(CLK_RATE, BAUD_RATE)(
     output logic baud_rate_error
 );
 
-localparam CLKS_PER_BAUD = real'(CLK_RATE) / real'(BAUD_RATE);
-localparam HALF_CLKS_PER_BAUD = real'(CLK_RATE) / real'(BAUD_RATE * 2);
+localparam int CLKS_PER_BAUD = CLK_RATE / BAUD_RATE;
+localparam int HALF_CLKS_PER_BAUD = CLK_RATE / (BAUD_RATE * 2);
 
 
-logic [3:0] state;
 
 localparam
-    IDLE  = 2'b00,
-    START = 2'b01,
-    DATA  = 2'b10,
-    STOP  = 2'b11;
+    IDLE   = 3'b000,
+    START1 = 3'b001,
+    START2 = 3'b010,
+    DATA   = 3'b011,
+    STOP   = 3'b100;
 
+logic [2:0] state;
 logic [31:0] clk_cnt;
 logic [2:0] bit_cnt;
 
@@ -61,30 +57,38 @@ always @(posedge clk, posedge areset) begin
             IDLE : begin
                 clk_cnt <= 1;
                 bit_cnt <= 0;
-                if (~rx) state <= START;
+                if (~rx) state <= START1;
             end
 
-            START : begin
+            START1 : begin
+                clk_cnt <= clk_cnt + 1;
+                if (rx) begin
+                    state <= IDLE;
+                end else if (clk_cnt == HALF_CLKS_PER_BAUD) begin
+                    state <= START2;
+                end
+            end
+
+            START2 : begin
                 if (clk_cnt == CLKS_PER_BAUD) begin
-                    clk_cnt <= 1;
                     state <= DATA;
+                    clk_cnt <= 1;
                 end else begin
                     clk_cnt <= clk_cnt + 1;
                 end
             end
 
             DATA : begin
+                clk_cnt <= clk_cnt + 1;
                 if (clk_cnt == HALF_CLKS_PER_BAUD) begin
                     data_reg[bit_cnt] <= rx;
                     clk_cnt <= clk_cnt + 1;
-                end else if (clk_cnt == CLKS_PER_BAUD) begin
+                end 
+                if (clk_cnt == CLKS_PER_BAUD) begin
                     clk_cnt <= 1;
                     if (bit_cnt == 7)
                         state <= STOP;
-                    else 
-                        bit_cnt <= bit_cnt + 1;
-                end else begin
-                    clk_cnt <= clk_cnt + 1;
+                    bit_cnt <= bit_cnt + 1;
                 end
             end
 
@@ -97,6 +101,8 @@ always @(posedge clk, posedge areset) begin
                     clk_cnt <= clk_cnt + 1;
                 end
             end
+
+            default : state <= IDLE;
         endcase
     end
 end

@@ -1,4 +1,4 @@
-work
-*.wlf
-transcript*
-*.out
+__pycache__
+sim_build
+*.xml
+*.fst
