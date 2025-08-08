@@ -1,0 +1,1 @@
+SystemVerilog modules that *should* be inferred as BRAM
