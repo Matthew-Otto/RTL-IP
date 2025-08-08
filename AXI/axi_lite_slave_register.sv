@@ -1,6 +1,6 @@
 // basic register(s) that can be access vie axi-lite port
 
-module axi_lite_slave_register #(ADDR_WIDTH=32, BUS_WIDTH=32, REG_CNT=1, START_ADDR=4) (
+module axi_lite_slave_register #(ADDR_WIDTH=32, DATA_WIDTH=32, REG_CNT=1, START_ADDR=4) (
   input  logic                      clk,
   input  logic                      reset,
 
@@ -11,8 +11,8 @@ module axi_lite_slave_register #(ADDR_WIDTH=32, BUS_WIDTH=32, REG_CNT=1, START_A
   input  logic [2:0]                s_axi_awprot,
   output logic                      s_axi_wready,
   input  logic                      s_axi_wvalid,
-  input  logic [(BUS_WIDTH/8)-1:0]  s_axi_wstrb,
-  input  logic [BUS_WIDTH-1:0]      s_axi_wdata,
+  input  logic [3:0]                s_axi_wstrb,
+  input  logic [31:0]               s_axi_wdata,
   input  logic                      s_axi_bready,
   output logic                      s_axi_bvalid,
   output logic [1:0]                s_axi_bresp,
@@ -24,15 +24,15 @@ module axi_lite_slave_register #(ADDR_WIDTH=32, BUS_WIDTH=32, REG_CNT=1, START_A
 
   input  logic                      s_axi_rready,
   output logic                      s_axi_rvalid,
-  output logic [BUS_WIDTH-1:0]      s_axi_rdata,
+  output logic [31:0]               s_axi_rdata,
   output logic [1:0]                s_axi_rresp,
 
-  output logic [BUS_WIDTH-1:0]      registers [REG_CNT-1:0],
-  input  logic [BUS_WIDTH-1:0]      register_write, // register writes overwrite axi writes in the same cycle
+  output logic [DATA_WIDTH-1:0]     registers [REG_CNT-1:0],
+  input  logic [DATA_WIDTH-1:0]     register_write, // register writes overwrite axi writes in the same cycle
   input  logic [REG_CNT-1:0]        register_wr_en 
 );
 
-  localparam WORD_OFFSET = BUS_WIDTH / 8;
+  localparam WORD_OFFSET = DATA_WIDTH / 8;
   localparam ADDR_ALIGN = $clog2(WORD_OFFSET);
   localparam BASE_ALIGN_ADDR = START_ADDR >> ADDR_ALIGN;
   localparam END_ALIGN_ADDR = BASE_ALIGN_ADDR + REG_CNT - 1;
@@ -40,7 +40,7 @@ module axi_lite_slave_register #(ADDR_WIDTH=32, BUS_WIDTH=32, REG_CNT=1, START_A
   // Ensure START_ADDR is word alligned
   generate
     if ((START_ADDR & ((1 << ADDR_ALIGN) - 1)) != 0) begin
-      initial $fatal(1, "START_ADDR (0x%0h) is not aligned to BUS_WIDTH (%0d bytes)", START_ADDR, (1 << ADDR_ALIGN));
+      initial $fatal(1, "START_ADDR (0x%0h) is not aligned to DATA_WIDTH (%0d bytes)", START_ADDR, (1 << ADDR_ALIGN));
     end
   endgenerate
 
@@ -224,7 +224,7 @@ module axi_lite_slave_register #(ADDR_WIDTH=32, BUS_WIDTH=32, REG_CNT=1, START_A
   // target registers
   always_ff @(posedge clk) begin
     for (int i = 0; i < REG_CNT; i++) begin
-      for (int j = 0; j < BUS_WIDTH; j++) begin
+      for (int j = 0; j < DATA_WIDTH; j++) begin
         if (reset)
           registers[i][j] <= '0;
         else if (register_wr_en[i] || wr_en[i][j/8])
