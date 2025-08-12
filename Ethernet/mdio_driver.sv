@@ -6,34 +6,65 @@ module mdio_driver #(
   input  logic clk,
   input  logic reset,
 
+  // (fast) clk domain
+  output logic read_burst,
+  output logic [4:0] read_addr,
+  output logic [15:0] read_data,
+
+  // slow clock domain
   output logic enet_mdc,
   inout  logic enet_mdio
 );
 
-  localparam ROM_SIZE = 4;
+  localparam ROM_SIZE = 3;
   localparam ROM_ADDR = $clog2(ROM_SIZE);
 
   logic [15:0] rom [ROM_SIZE-1:0];
 
   initial begin
     // enable auto crossover
-    rom[0] = 16'b01_01_00000_10000_10;
-    rom[1] = 16'b0000_0000_0110_0000;
+    //rom[0] = 16'b01_01_00000_10000_10;
+    //rom[1] = 16'b0000_0000_0110_0000;
     // reset
-    rom[2] = 16'b01_01_00000_00000_10;
-    rom[3] = 16'b1000_0000_0000_0000;
+    //rom[2] = 16'b01_01_00000_00000_10;
+    //rom[3] = 16'b1000_0000_0000_0000;
+    // read PHYID_1
+    rom[0] = 16'b01_10_00000_00010_xx;
+    // read PHYID_2
+    rom[1] = 16'b01_10_00000_00011_xx;
+    // read Copper Status Reg
+    rom[2] = 16'b01_10_00000_10001_xx;
   end
 
   // clock divider
   localparam REAL_CLK_DIV = $clog2(CLK_DIV);
   logic slow_clk;
   logic [REAL_CLK_DIV:0] cnt;
-  always @(posedge clk) begin
+  always_ff @(posedge clk) begin
     if (reset) cnt <= 0;
     else       cnt <= cnt + 1;
   end
   assign slow_clk = cnt[REAL_CLK_DIV];
   assign enet_mdc = slow_clk;
+
+  // reset stretch
+  logic slow_reset;
+  logic [3:0] rst_edge_cnt;
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      rst_edge_cnt <= 4'hf;
+    end else begin
+      if (~cnt[REAL_CLK_DIV])
+        rst_edge_cnt[3] <= 0;
+      if (~rst_edge_cnt[3] && cnt[REAL_CLK_DIV])
+        rst_edge_cnt[2] <= 0;
+      if (~rst_edge_cnt[2] && ~cnt[REAL_CLK_DIV])
+        rst_edge_cnt[1] <= 0;
+      if (~rst_edge_cnt[1] && cnt[REAL_CLK_DIV])
+        rst_edge_cnt[0] <= 0;
+    end
+  end
+  assign slow_reset = |rst_edge_cnt;
 
   // shift register
   logic mdio_in;
@@ -42,6 +73,7 @@ module mdio_driver #(
   logic mdio_oen;
 
   logic reg_wr_p;
+  logic reg_r_p;
   logic [15:0] shift_reg;
   logic [15:0] shift_reg_p;
 
@@ -53,12 +85,12 @@ module mdio_driver #(
   always_ff @(posedge slow_clk) begin
     for (int i = 0; i < 16; i++) begin
       if (i == 0) begin
-        if (reset)
+        if (slow_reset)
           shift_reg[i] <= 1'b0;
         else
           shift_reg[i] <= reg_wr_p ? shift_reg_p[i] : mdio_in;
       end else begin
-        if (reset)
+        if (slow_reset)
           shift_reg[i] <= 1'b0;
         else
           shift_reg[i] <= reg_wr_p ? shift_reg_p[i] : shift_reg[i-1];
@@ -70,78 +102,151 @@ module mdio_driver #(
   // state machine
   logic              incr_ip;
   logic [ROM_ADDR:0] ip;
-  logic [4:0]        bit_idx;
+  logic [3:0]        bit_idx;
+
 
   enum {
     IDLE,
     PREAMBLE_H1,
     PREAMBLE_H2,
-    INSTR_CTRL,
+    INSTR_CTRL_W,
     INSTR_WRITE,
+    INSTR_CTRL_R,
     INSTR_READ,
     HALT
   } state, next_state;
 
   always_ff @(posedge slow_clk) begin
-    if (reset) state <= IDLE;
+    if (slow_reset) state <= IDLE;
     else       state <= next_state;
 
-    if (reset) ip <= 0;
+    if (slow_reset) ip <= 0;
     else if (incr_ip) ip <= ip + 1;
 
-    if (reg_wr_p) bit_idx <= 15;
+    if (reg_wr_p) bit_idx <= 4'hf;
     else bit_idx <= bit_idx - 1;
-    
   end
 
   always_comb begin
     next_state = state;
     reg_wr_p = 0;
+    reg_r_p = 0;
     incr_ip = 0;
     mdio_ien = 0;
     mdio_oen = 0;
 
     case (state)
       IDLE : begin
-        reg_wr_p = 1;
-        shift_reg_p = 16'hFFFF;
-        next_state = PREAMBLE_H1;
+        if (ip == ROM_SIZE) begin
+          next_state = HALT;
+        end else begin
+          shift_reg_p = 16'hFFFF;
+          reg_wr_p = 1;
+          next_state = PREAMBLE_H1;
+        end
       end
 
       PREAMBLE_H1 : begin
         mdio_oen = 1;
         if (bit_idx == 0) begin
-          reg_wr_p = 1;
           shift_reg_p = 16'hFFFF;
+          reg_wr_p = 1;
           next_state = PREAMBLE_H2;
         end
       end
       PREAMBLE_H2 : begin
         mdio_oen = 1;
         if (bit_idx == 0) begin
+          shift_reg_p = rom[ip];
           reg_wr_p = 1;
           incr_ip = 1;
-          shift_reg_p = rom[ip];
-          next_state = INSTR_CTRL;
+          next_state = (rom[ip][13:12] == 2'b01) ? INSTR_CTRL_W : INSTR_CTRL_R;
         end
       end
 
-      INSTR_CTRL : begin
+      INSTR_CTRL_W : begin
         mdio_oen = 1;
         if (bit_idx == 0) begin
+          shift_reg_p = rom[ip];
           reg_wr_p = 1;
           incr_ip = 1;
-          shift_reg_p = rom[ip];
-          next_state = INSTR_WRITE; // TODO read
+          next_state = INSTR_WRITE;
         end
       end
-
+      
       INSTR_WRITE : begin
         mdio_oen = 1;
         if (bit_idx == 0)
-          next_state = (ip == ROM_SIZE) ? HALT :IDLE;
+        next_state = IDLE;
+      end
+
+      INSTR_CTRL_R : begin
+        mdio_oen = |bit_idx[3:1]; // deassert bus driver on last two cycles
+        if (bit_idx == 0) begin
+          next_state = INSTR_READ;
+        end
+      end
+
+      INSTR_READ : begin
+        mdio_ien = 1;
+        if (bit_idx == 0) begin
+          reg_r_p = 1;
+          next_state = IDLE;
+        end
       end
     endcase
   end
+
+  // read buffer
+  logic [15:0] read_buffer [31:0];
+
+  logic [4:0] buffer_wr_addr;
+  logic buffer_wr_latch;
+
+  always_ff @(posedge slow_clk) begin
+    if ((state == PREAMBLE_H2) && reg_wr_p)
+      buffer_wr_addr <= rom[ip][6:2];
+
+    buffer_wr_latch <= reg_r_p;
+
+    if (slow_reset)
+      for (int i = 0; i < 16; i++)
+        read_buffer[i] <= 0;
+    else if (buffer_wr_latch)
+      read_buffer[buffer_wr_addr] <= shift_reg;
+  end
+
+  enum {
+    READ_IDLE,
+    READ_BURST,
+    READ_HALT
+  } read_burst_state;
+
+  always_ff @(posedge clk) begin
+    if (reset)
+      read_burst_state <= READ_IDLE;
+    else begin
+      case (read_burst_state)
+        READ_IDLE : begin
+          if (state == HALT) begin
+            read_burst_state <= READ_BURST;
+            read_addr <= 0;
+            read_burst <= 1;
+          end
+        end
+
+        READ_BURST : begin
+          if (read_addr == 5'h1f) begin
+            read_burst_state <= READ_HALT;
+            read_burst <= 0;
+          end else begin
+            read_addr <= read_addr + 1;
+          end
+        end
+      endcase
+    end
+  end
+
+  assign read_data = read_buffer[read_addr];
 
 endmodule : mdio_driver

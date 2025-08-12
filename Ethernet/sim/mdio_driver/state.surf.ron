@@ -51,6 +51,12 @@
                     selected: false,
                 ),
                 (
+                    item_ref: (23),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
                     item_ref: (5),
                     level: 0,
                     unfolded: true,
@@ -70,6 +76,12 @@
                 ),
                 (
                     item_ref: (7),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (36),
                     level: 0,
                     unfolded: true,
                     selected: false,
@@ -104,9 +116,296 @@
                     unfolded: true,
                     selected: false,
                 ),
+                (
+                    item_ref: (18),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (15),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (16),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (17),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (21),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (30),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (34),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (35),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (31),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (24),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (29),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (19),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
             ],
         ),
         displayed_items: {
+            (34): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "buffer_wr_latch",
+                    id: Wellen((72)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "buffer_wr_latch",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (6): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "ip",
+                    id: Wellen((35)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "ip [2:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (16): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "mdio_ien",
+                    id: Wellen((27)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "mdio_ien",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (13): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (15): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "mdio_in",
+                    id: Wellen((26)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "mdio_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (8): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "shift_reg_p",
+                    id: Wellen((33)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "shift_reg_p [15:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (23): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "slow_reset",
+                    id: Wellen((24)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "slow_reset",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (17): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "enet_mdio",
+                    id: Wellen((15)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "enet_mdio",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (18): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (5): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (14): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "mdio_oen",
+                    id: Wellen((29)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "mdio_oen",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (12): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "shift_reg",
+                    id: Wellen((32)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "shift_reg [15:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (19): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "read_data",
+                    id: Wellen((13)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "read_data [15:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
             (10): Variable((
                 variable_ref: (
                     path: (
@@ -116,7 +415,7 @@
                         id: Wellen((2)),
                     ),
                     name: "mdio_out",
-                    id: Wellen((21)),
+                    id: Wellen((28)),
                 ),
                 color: None,
                 background_color: None,
@@ -127,7 +426,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (3): Variable((
+            (9): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -135,17 +434,27 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "reset",
-                    id: Wellen((7)),
+                    name: "state",
+                    id: Wellen((37)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "reset",
+                display_name: "state [31:0]",
                 display_name_type: Unique,
                 manual_name: None,
-                format: None,
+                format: Some("Enum"),
                 field_formats: [],
                 height_scaling_factor: None,
+            )),
+            (21): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (31): Divider((
+                color: None,
+                background_color: None,
+                name: None,
             )),
             (1): Variable((
                 variable_ref: (
@@ -156,7 +465,7 @@
                         id: Wellen((2)),
                     ),
                     name: "clk",
-                    id: Wellen((6)),
+                    id: Wellen((9)),
                 ),
                 color: None,
                 background_color: None,
@@ -176,7 +485,7 @@
                         id: Wellen((2)),
                     ),
                     name: "slow_clk",
-                    id: Wellen((17)),
+                    id: Wellen((22)),
                 ),
                 color: None,
                 background_color: None,
@@ -187,7 +496,67 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (12): Variable((
+            (30): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "buffer_wr_addr",
+                    id: Wellen((71)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "buffer_wr_addr [4:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (3): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "reset",
+                    id: Wellen((10)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reset",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (29): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "read_addr",
+                    id: Wellen((12)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "read_addr [4:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (35): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -196,7 +565,7 @@
                         id: Wellen((2)),
                     ),
                     name: "shift_reg",
-                    id: Wellen((24)),
+                    id: Wellen((32)),
                 ),
                 color: None,
                 background_color: None,
@@ -207,7 +576,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (8): Variable((
+            (24): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -215,82 +584,12 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "shift_reg_p",
-                    id: Wellen((25)),
+                    name: "read_burst",
+                    id: Wellen((11)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "shift_reg_p [15:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (9): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mdio_driver",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "state",
-                    id: Wellen((29)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (14): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mdio_driver",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "mdio_oen",
-                    id: Wellen((22)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "mdio_oen",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (13): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (5): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (6): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mdio_driver",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "ip",
-                    id: Wellen((27)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "ip [2:0]",
+                display_name: "read_burst",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -306,11 +605,31 @@
                         id: Wellen((2)),
                     ),
                     name: "bit_idx",
-                    id: Wellen((28)),
+                    id: Wellen((36)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "bit_idx [4:0]",
+                display_name: "bit_idx [3:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (36): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mdio_driver",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "reg_wr_p",
+                    id: Wellen((30)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reg_wr_p",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -318,11 +637,11 @@
                 height_scaling_factor: None,
             )),
         },
-        display_item_ref_counter: 14,
+        display_item_ref_counter: 36,
         viewports: [
             (
-                curr_left: (0.15084161334309784),
-                curr_right: (0.20790871891185983),
+                curr_left: (0.14512093380888336),
+                curr_right: (0.49035684764651055),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -332,10 +651,10 @@
             ),
         ],
         cursor: Some((1, [
-            335216864,
+            587166738,
         ])),
         markers: {},
-        focused_item: Some((11)),
+        focused_item: Some((8)),
         focused_transaction: (None, None),
         default_variable_name_type: Unique,
         scroll_offset: 0.0,
@@ -344,7 +663,10 @@
     )),
     drag_started: false,
     drag_source_idx: None,
-    drag_target_idx: None,
+    drag_target_idx: Some((
+        before: (8),
+        level: 0,
+    )),
     previous_waves: None,
     count: None,
     blacklisted_translators: [],
