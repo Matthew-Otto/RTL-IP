@@ -1,4 +1,4 @@
-// two stage sync
+// Reset synchronizer
 
 module reset_sync (
   input  logic clk,
@@ -12,9 +12,9 @@ module reset_sync (
     if (async_reset)
       sync <= 2'b11;
     else
-      sync <= {sync[0], async_reset};
+      sync <= {sync[0], 1'b0};
   end
 
-  assign sync_reset = async_reset || sync[1];
+  assign sync_reset = sync[1];
 
 endmodule : reset_sync
