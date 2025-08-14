@@ -40,12 +40,12 @@ module mdio_driver #(
     rom[14] = 16'b01_10_00000_10111_xx;
     rom[15] = 16'b01_10_00000_11010_xx;
     rom[16] = 16'b01_10_00000_11011_xx;
-    // disable copper autoneg
+    // disable copper autoneg (enable loopback)
     rom[17] = 16'b01_01_00000_00000_10;
     rom[18] = 16'b0000_0001_0100_0000;
     // select page 1
     rom[19] = 16'b01_01_00000_10110_10;
-    rom[10] = 16'b0000_0000_0000_0001;
+    rom[20] = 16'b0100_0000_0000_0001;
     // disable SGMII autoneg
     rom[21] = 16'b01_01_00000_00000_10;
     rom[22] = 16'b0000_0001_0100_0000;
@@ -62,7 +62,7 @@ module mdio_driver #(
     rom[30] = 16'b01_10_00000_00000_xx;
     // reset
     rom[31] = 16'b01_01_00000_00000_10;
-    rom[32] = 16'b1000_0001_0100_0000;
+    rom[32] = 16'b1100_0001_0100_0000;
   end
 
   // clock divider
@@ -161,6 +161,7 @@ module mdio_driver #(
     next_state = state;
     reg_wr_p = 0;
     reg_r_p = 0;
+    shift_reg_p = 0;
     incr_ip = 0;
     mdio_ien = 0;
     mdio_oen = 0;
@@ -209,7 +210,7 @@ module mdio_driver #(
       INSTR_WRITE : begin
         mdio_oen = 1;
         if (bit_idx == 0)
-        next_state = IDLE;
+          next_state = IDLE;
       end
 
       INSTR_CTRL_R : begin

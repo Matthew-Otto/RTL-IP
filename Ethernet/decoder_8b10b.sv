@@ -11,14 +11,14 @@ module decoder_8b10b (
   logic [8:0] krom_read;
   logic [8:0] drom_read;
 
+  logic [8:0] krom [1023:0];
+  logic [8:0] drom [1023:0];
+
   assign rom_addr = input_data;
   assign krom_read = krom[rom_addr];
   assign drom_read = drom[rom_addr];
   assign output_data = drom_read[7:0];
   assign output_ctrl = krom_read[7:0];
-  
-  logic [8:0] krom [1023:0];
-  logic [8:0] drom [1023:0];
   
   initial begin
     krom[85] = 9'b110110111;

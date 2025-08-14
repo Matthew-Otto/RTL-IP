@@ -117,7 +117,7 @@
                     selected: false,
                 ),
                 (
-                    item_ref: (15),
+                    item_ref: (19),
                     level: 0,
                     unfolded: true,
                     selected: false,
@@ -129,7 +129,19 @@
                     selected: false,
                 ),
                 (
-                    item_ref: (16),
+                    item_ref: (20),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (21),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (22),
                     level: 0,
                     unfolded: true,
                     selected: false,
@@ -140,10 +152,22 @@
                     unfolded: true,
                     selected: false,
                 ),
+                (
+                    item_ref: (16),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (15),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
             ],
         ),
         displayed_items: {
-            (10): Variable((
+            (21): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -151,12 +175,57 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "tx_char",
-                    id: Wellen((46)),
+                    name: "dec_data",
+                    id: Wellen((38)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "tx_char [7:0]",
+                display_name: "dec_data [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (14): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_state",
+                    id: Wellen((40)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (22): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (2): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "reset",
+                    id: Wellen((14)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reset",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -183,7 +252,12 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (18): Variable((
+            (9): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (20): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -191,12 +265,32 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "rx_data",
-                    id: Wellen((22)),
+                    name: "dec_ctrl",
+                    id: Wellen((39)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "rx_data [9:0]",
+                display_name: "dec_ctrl [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (10): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "tx_char",
+                    id: Wellen((46)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "tx_char [7:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -222,6 +316,71 @@
                 format: Some("Enum"),
                 field_formats: [],
                 height_scaling_factor: None,
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "clk",
+                    id: Wellen((13)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (4): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "ready_in",
+                    id: Wellen((16)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "ready_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (18): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_data",
+                    id: Wellen((22)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_data [9:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (3): Divider((
+                color: None,
+                background_color: None,
+                name: None,
             )),
             (5): Variable((
                 variable_ref: (
@@ -263,27 +422,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (2): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "sgmii_pcs",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "reset",
-                    id: Wellen((14)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "reset",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (9): Divider((
+            (13): Divider((
                 color: None,
                 background_color: None,
                 name: None,
@@ -293,7 +432,7 @@
                 background_color: None,
                 name: None,
             )),
-            (4): Variable((
+            (7): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -301,52 +440,12 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "ready_in",
-                    id: Wellen((16)),
+                    name: "data_in",
+                    id: Wellen((19)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "ready_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (1): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "sgmii_pcs",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "clk",
-                    id: Wellen((13)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "clk",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (8): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "sgmii_pcs",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "tx_data",
-                    id: Wellen((24)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "tx_data [9:0]",
+                display_name: "data_in [7:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -373,10 +472,25 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (13): Divider((
+            (8): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "sgmii_pcs",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "tx_data",
+                    id: Wellen((24)),
+                ),
                 color: None,
                 background_color: None,
-                name: None,
+                display_name: "tx_data [9:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
             )),
             (17): Variable((
                 variable_ref: (
@@ -398,7 +512,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (14): Variable((
+            (19): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -406,49 +520,24 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "rx_state",
-                    id: Wellen((40)),
+                    name: "rx_even",
+                    id: Wellen((34)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "rx_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (7): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "sgmii_pcs",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "data_in",
-                    id: Wellen((19)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "data_in [7:0]",
+                display_name: "rx_even",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (3): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
         },
-        display_item_ref_counter: 18,
+        display_item_ref_counter: 22,
         viewports: [
             (
-                curr_left: (0.25035172244933274),
-                curr_right: (0.45224826823587705),
+                curr_left: (0.33115062455275407),
+                curr_right: (0.40542422444869736),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -461,7 +550,7 @@
             729967,
         ])),
         markers: {},
-        focused_item: Some((15)),
+        focused_item: Some((20)),
         focused_transaction: (None, None),
         default_variable_name_type: Unique,
         scroll_offset: 0.0,
@@ -471,7 +560,7 @@
     drag_started: false,
     drag_source_idx: None,
     drag_target_idx: Some((
-        before: (15),
+        before: (20),
         level: 0,
     )),
     previous_waves: None,

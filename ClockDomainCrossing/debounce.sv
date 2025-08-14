@@ -16,7 +16,7 @@ module debounce #(parameter CLK_FREQ = 50000000) (
 
   assign db_in_rising_edge = q1 && ~q2;
 
-  always @(posedge clk or posedge db_in) begin
+  always @(posedge clk) begin
     q1 <= db_in;
     q2 <= q1;
 
