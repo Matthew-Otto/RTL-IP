@@ -17,8 +17,55 @@ async def reset(dut):
     dut.reset.value = 0
     print("DUT reset")
 
+@cocotb.coroutine
+async def serdes_emulator(dut):
+    symbols = [0x3a1, 0x3d2, 0x12c, 0x3a4, 0x3a1, 0x3d5, 0x153, 0x058, 0x05e, 0x02d, 0x2ab, 0x05b, 0x05e, 0x02d, 0x154, 0x3a4, 0x3a1, 0x3d2, 0x12c, 0x3a4, 0x3a1, 0x3d5, 0x153, 0x05b, 0x05e, 0x02d, 0x2ab, 0x05b, 0x05e, 0x02d, 0x154]
+    raw_bits = "".join([format(n, '010b') for n in symbols])
+
+    i = 0
+    while True:
+        if i+10 <= len(raw_bits):
+            symbol = raw_bits[i:i+10]
+        else:
+            print(raw_bits)
+            d = len(raw_bits) - i
+            print(f"len rawbits: {len(raw_bits)}")
+            print(f"i: {i}")
+            print(f"d: {d}")
+            print(f"i+d: {i+d}")
+            print(f"first: {raw_bits[i:i+d]}")
+            print(f"second: {raw_bits[0:10-d]}")
+            symbol = raw_bits[i:i+d] + raw_bits[0:10-d]
+        print(f"Driving symbol {symbol}")
+        dut.rx_data.value = int(symbol, 2)
+
+        # BOZO bit slip is currently broken
+        await FallingEdge(dut.clk)
+        if dut.rx_bitslip.value:
+            i += 11
+        else:
+            i += 10
+        if i >= len(raw_bits):
+            i = i - len(raw_bits)
+        await RisingEdge(dut.clk)
+
+
 @cocotb.test()
-async def test(dut):
+async def rx_test(dut):
+    seed = 12345 #int(time.time())
+    random.seed(seed)
+    print(f"using seed: {seed}")
+
+    # start system clock
+    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    cocotb.start_soon(serdes_emulator(dut))
+    await reset(dut)
+
+    await ClockCycles(dut.clk, 100)
+
+
+#@cocotb.test()
+async def tx_test(dut):
     seed = 12345 #int(time.time())
     random.seed(seed)
     print(f"using seed: {seed}")
@@ -40,6 +87,3 @@ async def test(dut):
     dut.data_in.value = random.getrandbits(8)
 
     await ClockCycles(dut.clk, 20)
-
-
-   

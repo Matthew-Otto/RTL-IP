@@ -31,16 +31,16 @@ module comma_align (
     offset = 0;
     comma = 1;
     case (match)
-      10'b00000_00001 : offset = 3;
-      10'b00000_00010 : offset = 2;
-      10'b00000_00100 : offset = 1;
-      10'b00000_01000 : offset = 0;
-      10'b00000_10000 : offset = 9;
-      10'b00001_00000 : offset = 8;
-      10'b00010_00000 : offset = 7;
-      10'b00100_00000 : offset = 6;
-      10'b01000_00000 : offset = 5;
-      10'b10000_00000 : offset = 4;
+      10'b00000_00001 : offset = 0;
+      10'b00000_00010 : offset = 1;
+      10'b00000_00100 : offset = 2;
+      10'b00000_01000 : offset = 3;
+      10'b00000_10000 : offset = 4;
+      10'b00001_00000 : offset = 5;
+      10'b00010_00000 : offset = 6;
+      10'b00100_00000 : offset = 7;
+      10'b01000_00000 : offset = 8;
+      10'b10000_00000 : offset = 9;
       default : comma = 0;
     endcase
   end
