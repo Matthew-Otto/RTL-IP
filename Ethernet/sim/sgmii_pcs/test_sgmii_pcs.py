@@ -11,9 +11,9 @@ from cocotb.clock import Clock
 
 @cocotb.coroutine
 async def reset(dut):
-    await RisingEdge(dut.clk_125M)
+    await RisingEdge(dut.clk)
     dut.reset.value = 1
-    await ClockCycles(dut.clk_125M, 5)
+    await ClockCycles(dut.clk, 5)
     dut.reset.value = 0
     print("DUT reset")
 
@@ -24,22 +24,22 @@ async def test(dut):
     print(f"using seed: {seed}")
 
     # start system clock
-    cocotb.start_soon(Clock(dut.clk_125M, 20, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
     await reset(dut)
 
-    await ClockCycles(dut.clk_125M, 7)
+    await ClockCycles(dut.clk, 7)
 
-    dut.sof.value = 1
-    dut.data.value = random.getrandbits(8)
-    await RisingEdge(dut.clk_125M)
-    dut.sof.value = 0
+    dut.sof_in.value = 1
+    dut.data_in.value = random.getrandbits(8)
+    await RisingEdge(dut.clk)
+    dut.sof_in.value = 0
     for _ in range(38):
-        dut.data.value = random.getrandbits(8)
-        await RisingEdge(dut.clk_125M)
-    dut.eof.value = 1
-    dut.data.value = random.getrandbits(8)
+        dut.data_in.value = random.getrandbits(8)
+        await RisingEdge(dut.clk)
+    dut.eof_in.value = 1
+    dut.data_in.value = random.getrandbits(8)
 
-    await ClockCycles(dut.clk_125M, 20)
+    await ClockCycles(dut.clk, 20)
 
 
    

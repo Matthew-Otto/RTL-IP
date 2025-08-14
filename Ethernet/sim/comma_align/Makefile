@@ -1,7 +1,7 @@
 SIM ?= verilator
 TOPLEVEL_LANG = verilog
 
-DUT ?= sgmii_tx
+DUT ?= comma_align
 # TOPLEVEL is the name of the toplevel module in your Verilog or VHDL file
 TOPLEVEL = $(DUT)
 # MODULE is the basename of the Python test file

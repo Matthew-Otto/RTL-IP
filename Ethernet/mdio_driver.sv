@@ -16,24 +16,53 @@ module mdio_driver #(
   inout  logic enet_mdio
 );
 
-  localparam ROM_SIZE = 3;
+  localparam ROM_SIZE = 33;
   localparam ROM_ADDR = $clog2(ROM_SIZE);
 
   logic [15:0] rom [ROM_SIZE-1:0];
 
   initial begin
-    // enable auto crossover
-    //rom[0] = 16'b01_01_00000_10000_10;
-    //rom[1] = 16'b0000_0000_0110_0000;
+    // read Copper Status Regs
+    rom[0] = 16'b01_10_00000_00001_xx;
+    rom[1] = 16'b01_10_00000_00010_xx;
+    rom[2] = 16'b01_10_00000_00011_xx;
+    rom[3] = 16'b01_10_00000_00100_xx;
+    rom[4] = 16'b01_10_00000_00101_xx;
+    rom[5] = 16'b01_10_00000_00110_xx;
+    rom[6] = 16'b01_10_00000_00111_xx;
+    rom[7] = 16'b01_10_00000_01000_xx;
+    rom[8] = 16'b01_10_00000_01010_xx;
+    rom[9] = 16'b01_10_00000_01111_xx;
+    rom[10] = 16'b01_10_00000_10000_xx;
+    rom[11] = 16'b01_10_00000_10001_xx;
+    rom[12] = 16'b01_10_00000_10100_xx;
+    rom[13] = 16'b01_10_00000_10101_xx;
+    rom[14] = 16'b01_10_00000_10111_xx;
+    rom[15] = 16'b01_10_00000_11010_xx;
+    rom[16] = 16'b01_10_00000_11011_xx;
+    // disable copper autoneg
+    rom[17] = 16'b01_01_00000_00000_10;
+    rom[18] = 16'b0000_0001_0100_0000;
+    // select page 1
+    rom[19] = 16'b01_01_00000_10110_10;
+    rom[10] = 16'b0000_0000_0000_0001;
+    // disable SGMII autoneg
+    rom[21] = 16'b01_01_00000_00000_10;
+    rom[22] = 16'b0000_0001_0100_0000;
+    // wait
+    rom[23] = 16'hffff;
+    rom[24] = 16'hffff;
+    rom[25] = 16'hffff;
+    rom[26] = 16'hffff;
+    rom[27] = 16'hffff;
+    // select page 0
+    rom[28] = 16'b01_01_00000_10110_10;
+    rom[29] = 16'b0000_0000_0000_0000;
+    // read back the changes
+    rom[30] = 16'b01_10_00000_00000_xx;
     // reset
-    //rom[2] = 16'b01_01_00000_00000_10;
-    //rom[3] = 16'b1000_0000_0000_0000;
-    // read PHYID_1
-    rom[0] = 16'b01_10_00000_00010_xx;
-    // read PHYID_2
-    rom[1] = 16'b01_10_00000_00011_xx;
-    // read Copper Status Reg
-    rom[2] = 16'b01_10_00000_10001_xx;
+    rom[31] = 16'b01_01_00000_00000_10;
+    rom[32] = 16'b1000_0001_0100_0000;
   end
 
   // clock divider
@@ -113,6 +142,7 @@ module mdio_driver #(
     INSTR_WRITE,
     INSTR_CTRL_R,
     INSTR_READ,
+    WAIT,
     HALT
   } state, next_state;
 
@@ -139,6 +169,8 @@ module mdio_driver #(
       IDLE : begin
         if (ip == ROM_SIZE) begin
           next_state = HALT;
+        end else if (rom[ip] == 16'hffff) begin
+          next_state = WAIT;
         end else begin
           shift_reg_p = 16'hFFFF;
           reg_wr_p = 1;
@@ -191,6 +223,13 @@ module mdio_driver #(
         mdio_ien = 1;
         if (bit_idx == 0) begin
           reg_r_p = 1;
+          next_state = IDLE;
+        end
+      end
+
+      WAIT : begin
+        if (bit_idx == 0) begin
+          incr_ip = 1;
           next_state = IDLE;
         end
       end
