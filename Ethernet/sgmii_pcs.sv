@@ -76,6 +76,8 @@ module sgmii_pcs (
     RX_CD3,
     RX_CTRL,
     RX_CFG_IDLE,
+    RX_CFG1,
+    RX_CFG2,
     RX_SOF,
     RX_PACKET,
     RX_EXT
@@ -85,7 +87,7 @@ module sgmii_pcs (
     if (reset) rx_state <= RX_LOS;
     else       rx_state <= next_rx_state;
 
-    if (rx_set_even) rx_even <= 1;
+    if (rx_set_even) rx_even <= 0; // setting this cycle even means next cycle must be odd
     else             rx_even <= ~rx_even;
   end
 
@@ -125,8 +127,10 @@ module sgmii_pcs (
       end
 
       RX_CTRL : begin
-        if (comma && ~|offset)
-          next_rx_state = RX_CTRL;
+        if (~rx_even)
+          next_rx_state = RX_LOS;
+        else if (comma && ~|offset)
+          next_rx_state = RX_CFG_IDLE;
         else if (dec_ctrl == K27_7)
           next_rx_state = RX_SOF;
         else
@@ -139,9 +143,16 @@ module sgmii_pcs (
           D5_6,
           D16_2: next_rx_state = RX_CTRL;
           D21_5,
-          D2_2 : next_rx_state = RX_LOS;
+          D2_2 : next_rx_state = RX_CFG1;
           default;
         endcase
+      end
+
+      RX_CFG1 : begin
+        next_rx_state = RX_CFG2;
+      end
+      RX_CFG2 : begin
+        next_rx_state = RX_CTRL;
       end
 
       RX_SOF : begin

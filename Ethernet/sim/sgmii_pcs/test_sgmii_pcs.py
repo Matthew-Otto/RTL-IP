@@ -18,8 +18,7 @@ async def reset(dut):
     print("DUT reset")
 
 @cocotb.coroutine
-async def serdes_emulator(dut):
-    symbols = [0x3a1, 0x3d2, 0x12c, 0x3a4, 0x3a1, 0x3d5, 0x153, 0x058, 0x05e, 0x02d, 0x2ab, 0x05b, 0x05e, 0x02d, 0x154, 0x3a4, 0x3a1, 0x3d2, 0x12c, 0x3a4, 0x3a1, 0x3d5, 0x153, 0x05b, 0x05e, 0x02d, 0x2ab, 0x05b, 0x05e, 0x02d, 0x154]
+async def serdes_emulator(dut, symbols):
     raw_bits = "".join([format(n, '010b') for n in symbols])
 
     i = 0
@@ -50,16 +49,17 @@ async def serdes_emulator(dut):
         await RisingEdge(dut.clk)
 
 
-@cocotb.test()
+#@cocotb.test()
 async def rx_test(dut):
     seed = 12345 #int(time.time())
     random.seed(seed)
     print(f"using seed: {seed}")
 
-    # start system clock
     cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
-    cocotb.start_soon(serdes_emulator(dut))
     await reset(dut)
+
+    symbols = [0x0fa, 0x2aa, 0x18b, 0x18b, 0x305, 0x2d5, 0x18b, 0x18b, 0x305, 0x2aa, 0x274, 0x274, 0x0fa, 0x125, 0x274, 0x274, 0x0fa, 0x2aa, 0x18b, 0x18b, 0x305, 0x2d5, 0x18b, 0x18b, 0x305, 0x2aa, 0x274, 0x274]
+    cocotb.start_soon(serdes_emulator(dut,symbols))
 
     await ClockCycles(dut.clk, 100)
 
@@ -70,7 +70,6 @@ async def tx_test(dut):
     random.seed(seed)
     print(f"using seed: {seed}")
 
-    # start system clock
     cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
     await reset(dut)
 
@@ -87,3 +86,17 @@ async def tx_test(dut):
     dut.data_in.value = random.getrandbits(8)
 
     await ClockCycles(dut.clk, 20)
+
+
+@cocotb.test()
+async def autoneg_test(dut):
+    seed = 12345 #int(time.time())
+    random.seed(seed)
+    print(f"using seed: {seed}")
+
+    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    await reset(dut)
+
+    symbols = [0x0fa, 0x2aa, 0x18b, 0x18b, 0x305, 0x2d5, 0x18b, 0x18b, 0x305, 0x2aa, 0x274, 0x274, 0x0fa, 0x125, 0x274, 0x274, 0x0fa, 0x2aa, 0x18b, 0x18b, 0x305, 0x2d5, 0x18b, 0x18b, 0x305, 0x2aa, 0x274, 0x274]
+    cocotb.start_soon(serdes_emulator(dut,symbols))
+    await ClockCycles(dut.clk, 100)
