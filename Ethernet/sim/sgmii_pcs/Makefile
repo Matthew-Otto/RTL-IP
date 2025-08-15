@@ -7,6 +7,7 @@ TOPLEVEL = $(DUT)
 # MODULE is the basename of the Python test file
 MODULE = test_$(DUT)
 VERILOG_SOURCES += $(shell find ../.. -name "*.sv")
+VERILOG_SOURCES += $(shell find ../../../FIFO -name "*.sv")
 
 
 # warnings

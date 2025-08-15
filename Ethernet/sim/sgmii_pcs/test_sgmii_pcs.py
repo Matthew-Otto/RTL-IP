@@ -48,6 +48,24 @@ async def serdes_emulator(dut, symbols):
             i = i - len(raw_bits)
         await RisingEdge(dut.clk)
 
+@cocotb.coroutine
+async def send_frame(dut, frame):
+    for b in frame[:-1]:
+        dut.valid_in.value = 1
+        while dut.pause_in.value:
+            await RisingEdge(dut.clk)
+        dut.data_in.value = b
+        await RisingEdge(dut.clk)
+
+    dut.valid_in.value = 1
+    while dut.pause_in.value:
+        await RisingEdge(dut.clk)
+    dut.eof_in.value = 1
+    dut.data_in.value = frame[-1]
+    await RisingEdge(dut.clk)
+    dut.valid_in.value = 0
+    dut.eof_in.value = 0
+
 
 #@cocotb.test()
 async def rx_test(dut):
@@ -64,7 +82,7 @@ async def rx_test(dut):
     await ClockCycles(dut.clk, 100)
 
 
-#@cocotb.test()
+@cocotb.test()
 async def tx_test(dut):
     seed = 12345 #int(time.time())
     random.seed(seed)
@@ -75,20 +93,13 @@ async def tx_test(dut):
 
     await ClockCycles(dut.clk, 7)
 
-    dut.sof_in.value = 1
-    dut.data_in.value = random.getrandbits(8)
-    await RisingEdge(dut.clk)
-    dut.sof_in.value = 0
-    for _ in range(38):
-        dut.data_in.value = random.getrandbits(8)
-        await RisingEdge(dut.clk)
-    dut.eof_in.value = 1
-    dut.data_in.value = random.getrandbits(8)
+    await send_frame(dut, random.randbytes(64))
+    await send_frame(dut, random.randbytes(64))
 
     await ClockCycles(dut.clk, 20)
 
 
-@cocotb.test()
+#@cocotb.test()
 async def autoneg_test(dut):
     seed = 12345 #int(time.time())
     random.seed(seed)

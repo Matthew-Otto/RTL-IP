@@ -1,11 +1,10 @@
 // sgmii PCS
 // Takes raw ethernet frame bytes from MAC and sends them to PHY over SGMII link
 
-//// Designed for use on the Stratix 10 GX dev kit board
 // Assumes hard logic SERDES block with bitslip support
 // Assumes Marvel 88E1111 (or compatible) PHY
 // Does not support autonegotiation. 
-// Does support configuring PHY over MDIO (to disable autonegotiation)
+// Requires configuring PHY over MDIO (to disable autonegotiation)
 
 
 module sgmii_pcs (
@@ -13,16 +12,17 @@ module sgmii_pcs (
   input  logic       reset,
   output logic       eth_ready,
 
-  // input data
-  output logic       ready_in,
-  input  logic       sof_in,
-  input  logic       eof_in,
+  // input data (TX)
+  input  logic       valid_in,
   input  logic [7:0] data_in,
+  input  logic       eof_in,
+  output logic       pause_in,
 
-  // output data
+  // output data (RX)
   output logic       valid_out,
   output logic [7:0] data_out,
 
+  // SERDES interface
   input  logic [9:0] rx_data,
   output logic       rx_bitslip,
   output logic [9:0] tx_data
@@ -39,6 +39,10 @@ module sgmii_pcs (
     D21_5 = 8'hB5, // config 1
     D2_2  = 8'h42; // config 2
 
+  logic rx_ready;
+
+  assign eth_ready = rx_ready;
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// RX Channel //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +52,6 @@ module sgmii_pcs (
   logic [3:0] offset;
   logic [7:0] dec_data;
   logic [7:0] dec_ctrl;
-
-  assign eth_ready = (rx_state == RX_CFG_IDLE);
 
   comma_align comma_align_i (
     .clk,
@@ -64,8 +66,6 @@ module sgmii_pcs (
     .output_data(dec_data),
     .output_ctrl(dec_ctrl)
   );
-
-  // TODO assign to data_out
 
   // RX FSM
   // processes control seq (k ordered sets)
@@ -93,6 +93,7 @@ module sgmii_pcs (
 
   always_comb begin
     next_rx_state = rx_state;
+    rx_ready = 0;
     rx_bitslip = 0;
     rx_set_even = 0;
     valid_out = 0;
@@ -127,6 +128,7 @@ module sgmii_pcs (
       end
 
       RX_CTRL : begin
+        rx_ready = 1;
         if (~rx_even)
           next_rx_state = RX_LOS;
         else if (comma && ~|offset)
@@ -139,6 +141,7 @@ module sgmii_pcs (
 
       // read data code group to determine if this is a config or idle seq
       RX_CFG_IDLE : begin
+        rx_ready = 1;
         case (dec_data)
           D5_6,
           D16_2: next_rx_state = RX_CTRL;
@@ -149,17 +152,21 @@ module sgmii_pcs (
       end
 
       RX_CFG1 : begin
+        rx_ready = 1;
         next_rx_state = RX_CFG2;
       end
       RX_CFG2 : begin
+        rx_ready = 1;
         next_rx_state = RX_CTRL;
       end
 
       RX_SOF : begin
+        rx_ready = 1;
         next_rx_state = RX_PACKET;
       end
 
       RX_PACKET : begin
+        rx_ready = 1;
         if (dec_ctrl == K29_7)
           next_rx_state = RX_EXT;
         else
@@ -167,6 +174,7 @@ module sgmii_pcs (
       end
 
       RX_EXT : begin
+        rx_ready = 1;
         next_rx_state = rx_even ? RX_EXT : RX_CTRL;
       end
     endcase
@@ -174,20 +182,22 @@ module sgmii_pcs (
 
   assign data_out = dec_data;
 
+
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// TX Channel //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  localparam FDLY = 9; // how many cycles bwteen SOF to sending frame data
+  
+  logic tx_buffer_valid;
+  logic tx_buffer_ready;
+  logic [7:0] tx_buffer_data;
+  logic tx_buffer_eof;
 
   logic       tx_even;
   logic       control_symbol;
   logic       tx_rd;
   logic [7:0] tx_char;
-  logic [8:0] frame_buffer [FDLY:0];
   logic [2:0] preamble_cnt;
-  logic [7:0] data_in_dly;
-  logic       eof_in_dly;
   
   enum {
     IDLE1,
@@ -217,7 +227,7 @@ module sgmii_pcs (
     next_tx_state = tx_state;
     control_symbol = 0;
     tx_char = 0;
-    ready_in = 0;
+    tx_buffer_ready = 0;
 
     case (tx_state)
       IDLE1 : begin
@@ -228,9 +238,8 @@ module sgmii_pcs (
 
       IDLE2 : begin
         tx_char = tx_rd ? D16_2 : D5_6;
-        ready_in = 1;
 
-        if (sof_in)
+        if (tx_buffer_valid)
           next_tx_state = SOF;
         else
           next_tx_state = IDLE1;
@@ -252,8 +261,9 @@ module sgmii_pcs (
       end
 
       FRAME : begin
-        tx_char = data_in_dly;
-        if (eof_in_dly)
+        tx_buffer_ready = 1;
+        tx_char = tx_buffer_data;
+        if (tx_buffer_eof)
           next_tx_state = EOF;
       end
 
@@ -266,7 +276,8 @@ module sgmii_pcs (
       C_EXT : begin
         control_symbol = 1;
         tx_char = K23_7;
-        next_tx_state = tx_even ? C_EXT : IDLE1;
+        next_tx_state = tx_buffer_valid ? SOF
+                      : tx_even ? C_EXT : IDLE1;
       end
     endcase
   end
@@ -276,20 +287,28 @@ module sgmii_pcs (
     .clk(clk),
     .reset,
     .input_valid(1'b1),
-    .input_ctrl(control_symbol), // input char should be encoded as a control symbol
+    .input_ctrl(control_symbol), // sel if input char should be encoded as a control symbol
     .input_data(tx_char),
     .output_data(tx_data),
     .rd(tx_rd)
   );
 
-  // delay ethernet frame data long enough to send preamble
-  always_ff @(posedge clk) begin
-    frame_buffer[FDLY] <= {eof_in,data_in};
-    for (int i = 0; i < FDLY; i++) begin
-      if (reset) frame_buffer[i] <= 0;
-      else frame_buffer[i] <= frame_buffer[i+1];
-    end
-  end
-  assign {eof_in_dly, data_in_dly} = frame_buffer[0];
+
+  fifo #(
+    .WIDTH(9),
+    .DEPTH(16),
+    .ALMOST_FULL_THRESHOLD(2)
+  ) tx_fifo (
+    .clk,
+    .reset,
+    .ready_in(),
+    .valid_in(valid_in && ~pause_in),
+    .data_in({eof_in,data_in}),
+    .ready_out(tx_buffer_ready),
+    .valid_out(tx_buffer_valid),
+    .data_out({tx_buffer_eof,tx_buffer_data}),
+    .almost_full(pause_in),
+    .almost_empty()
+  );
 
 endmodule : sgmii_pcs
