@@ -167,7 +167,7 @@ module sgmii_pcs (
 
       RX_PACKET : begin
         rx_ready = 1;
-        if (dec_ctrl == K29_7)
+        if (dec_ctrl == K29_7) // end of frame
           next_rx_state = RX_EXT;
         else
           valid_out = 1;
@@ -263,7 +263,7 @@ module sgmii_pcs (
       FRAME : begin
         tx_buffer_ready = 1;
         tx_char = tx_buffer_data;
-        if (tx_buffer_eof)
+        if (tx_buffer_eof || ~tx_buffer_valid) // TODO notify MAC of buffer underrun?
           next_tx_state = EOF;
       end
 

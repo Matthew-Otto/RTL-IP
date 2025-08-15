@@ -1,22 +1,23 @@
 import socket
 import struct
+import random
 
 INTERFACE = "enp14s0"
 
 dest_mac = b'\xff\xff\xff\xff\xff\xff'
-src_mac = b'\x00\x07\xed\x2e\x05\x13'
+src_mac = b'\x00\x07\xed\x12\x34\x56'
 ethertype = b'\x08\x00'
 
 
 def main():
-    payload = b"Hello!"
+    payload = random.randbytes(64)
     frame = gen_frame(dest_mac, src_mac, ethertype, payload)
 
-    s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW)
-    s.bind((INTERFACE, 0))
+    #write_romfile('test.txt', frame)
+    #write_pcap('test.pcap', frame)
+    
+    print(list(frame))
 
-    for _ in range(10000000):
-        s.send(frame)
 
 
 
@@ -70,6 +71,23 @@ def write_pcap(filename: str, frame: bytes):
         f.write(pcap_global_hdr)
         f.write(pcap_pkt_hdr)
         f.write(frame)
+
+
+def write_romfile(filename: str, frame: bytes):
+    data = ""
+    for idx,b in enumerate(frame):
+        data += f"packet[{idx}] = 8'h{format(b, '02X')};\n"
+    
+    with open(filename, "w") as f:
+        f.write(data)
+
+
+def send_frame(frame: bytes, cnt: int):
+    s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW)
+    s.bind((INTERFACE, 0))
+
+    for _ in range(cnt):
+        s.send(frame)
 
 if __name__ == "__main__":
     main()
