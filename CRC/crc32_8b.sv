@@ -5,17 +5,20 @@
 // - Input:  8-bit stream of the entire frame
 // - Output: 'good' or 'bad' bit asserted after last byte of frame
 // Detects end of frame by gap in data_valid signal. 
-// Entire frame must be streamed without breaks.
+// data_valid must not be deasserted before frame is complete
+// 'stall' must be asserted for any breaks
 
 module crc32_8b (
-  input  logic       clk,
-  input  logic       reset,
+  input  logic        clk,
+  input  logic        reset,
 
-  input  logic       data_valid,
-  input  logic [7:0] data_in,
+  input  logic        stall,
+  input  logic        data_valid,
+  input  logic [7:0]  data_in,
 
-  output logic       fcs_good,
-  output logic       fcs_bad
+  output logic [31:0] crc_out,
+  output logic        fcs_good,
+  output logic        fcs_bad
 );
 
   localparam logic [31:0] CHECK_VALUE = 32'h2144DF1C;
@@ -34,7 +37,7 @@ module crc32_8b (
   always_ff @(posedge clk) begin
     if (reset || ~data_valid)
       crc <= 32'hFFFFFFFF;
-    else if (data_valid)
+    else if (data_valid && ~stall)
       crc <= {8'b0,crc[31:8]} ^ lut_data;
 
     if (reset) last_valid <= 0;
@@ -44,6 +47,7 @@ module crc32_8b (
   assign falling_edge = last_valid && ~data_valid;
   assign match_check_val = ~crc == CHECK_VALUE;
 
+  assign crc_out = ~crc;
   assign fcs_good = falling_edge && match_check_val;
   assign fcs_bad = falling_edge && ~match_check_val;
 
