@@ -2,7 +2,7 @@
 // Writes can be reverted by asserting the revert signal
 // Reverts erase all writes that have occured since last assertion of commit
 // Commit "locks in" the writes that have occured so far and will make them visible to the receiver
-// Asserting commit and revert in the same cycle will result in a commit
+// Asserting commit and revert in the same cycle will result in a revert
 // Reverts will erase any writes that occur in the same cycle
 
 module spec_fifo #(
@@ -58,42 +58,40 @@ module spec_fifo #(
 
       // spec wr ptr
       casez ({write, commit, revert})
-        3'b100 : spec_wr_ptr <= spec_wr_ptr + 1;
-        3'b01? : spec_wr_ptr <= spec_wr_ptr;
-        3'b11? : spec_wr_ptr <= spec_wr_ptr + 1;
-        3'b?01 : spec_wr_ptr <= wr_ptr;
+        3'b??1 : spec_wr_ptr <= wr_ptr;
+        3'b1?0 : spec_wr_ptr <= spec_wr_ptr + 1;
+        3'b010:;
         3'b000:;
       endcase
       
       // spec size
       casez ({write, read, commit, revert})
-        4'b1000 : spec_size <= spec_size + 1;
-        4'b0100 : spec_size <= spec_size - 1;
-        4'b1100 : spec_size <= spec_size;
-        4'b101? : spec_size <= spec_size + 1;
-        4'b011? : spec_size <= spec_size - 1;
-        4'b111? : spec_size <= spec_size;
-        4'b001? : spec_size <= spec_size;
-        4'b?001 : spec_size <= size;
-        4'b?101 : spec_size <= size - 1;
-        4'b0000:;
+        4'b?0?1 : spec_size <= size;
+        4'b?1?1 : spec_size <= size - 1;
+        4'b10?0 : spec_size <= spec_size + 1;
+        4'b01?0 : spec_size <= spec_size - 1;
+        4'b11?0 : spec_size <= spec_size;
+        4'b00?0:;
       endcase
   
       // wr ptr
-      case ({write, commit})
-        2'b11 : wr_ptr <= spec_wr_ptr + 1;
-        2'b01 : wr_ptr <= spec_wr_ptr;
+      case ({write, commit, revert})
+        3'b110 : wr_ptr <= spec_wr_ptr + 1;
+        3'b010 : wr_ptr <= spec_wr_ptr;
         default;
       endcase
 
       // size
-      casez ({write, read, commit})
-        3'b?10 : size <= size - 1;
-        3'b001 : size <= spec_size;
-        3'b101 : size <= spec_size + 1;
-        3'b111 : size <= spec_size;
-        3'b011 : size <= spec_size - 1;
-        default;
+      casez ({write, read, commit, revert})
+        4'b0010 : size <= spec_size;
+        4'b1010 : size <= spec_size + 1;
+        4'b1110 : size <= spec_size;
+        4'b0110 : size <= spec_size - 1;
+        4'b1000 : size <= size;
+        4'b?100 : size <= size - 1;
+        4'b?1?1 : size <= size - 1;
+        4'b?0?1 : size <= size;
+        4'b0000:;
       endcase
     end
   end

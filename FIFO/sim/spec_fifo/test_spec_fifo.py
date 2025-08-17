@@ -36,16 +36,22 @@ async def spec_write_random(dut, ref_fifo):
         # commit / revert randomly
         dut.commit.value = 0
         dut.revert.value = 0
-        if random.random() < (uncommitted_cnt/fifo_size):
-            dut.commit.value = 1
-            uncommitted_cnt = 0
-            while not spec_fifo.empty():
-                ref_fifo.put(spec_fifo.get())
-        elif random.random() < (uncommitted_cnt/fifo_size):
+        revert = random.random() < (uncommitted_cnt/fifo_size)
+        if revert:
+            commit = random.random() < ((uncommitted_cnt/fifo_size)/10)
+        else:
+            commit = random.random() < (uncommitted_cnt/fifo_size)
+        if revert:
             dut.revert.value = 1
             uncommitted_cnt = 0
             while not spec_fifo.empty():
                 spec_fifo.get()
+        if commit:
+            dut.commit.value = 1
+            uncommitted_cnt = 0
+            while not spec_fifo.empty():
+                ref_fifo.put(spec_fifo.get())
+            
 
         # wait one cycle after ready_in asserts
         while True:
