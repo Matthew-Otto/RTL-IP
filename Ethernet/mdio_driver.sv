@@ -1,8 +1,6 @@
 // drives preconfigured values onto MDIO bus and reads back the results
 
-module mdio_driver #(
-  parameter CLK_DIV=50
-)(
+module mdio_driver (
   input  logic clk,
   input  logic reset,
 
@@ -37,34 +35,29 @@ module mdio_driver #(
   end
 
   // clock divider
-  localparam REAL_CLK_DIV = $clog2(CLK_DIV);
   logic slow_clk;
-  logic [REAL_CLK_DIV:0] cnt;
+  logic [5:0] cnt;
   always_ff @(posedge clk) begin
-    if (reset) cnt <= 0;
-    else       cnt <= cnt + 1;
+    if (reset || (cnt == 6'd50)) 
+      cnt <= 0;
+    else
+      cnt <= cnt + 1;
+
+    if (cnt == 50)
+      slow_clk <= ~slow_clk;
   end
-  assign slow_clk = cnt[REAL_CLK_DIV];
   assign enet_mdc = slow_clk;
 
-  // reset stretch
-  logic slow_reset;
-  logic [3:0] rst_edge_cnt;
-  always_ff @(posedge clk) begin
-    if (reset) begin
-      rst_edge_cnt <= 4'hf;
-    end else begin
-      if (~cnt[REAL_CLK_DIV])
-        rst_edge_cnt[3] <= 0;
-      if (~rst_edge_cnt[3] && cnt[REAL_CLK_DIV])
-        rst_edge_cnt[2] <= 0;
-      if (~rst_edge_cnt[2] && ~cnt[REAL_CLK_DIV])
-        rst_edge_cnt[1] <= 0;
-      if (~rst_edge_cnt[1] && cnt[REAL_CLK_DIV])
-        rst_edge_cnt[0] <= 0;
-    end
+  // reset timer
+  logic        slow_reset;
+  logic [13:0] reset_timer;
+  always_ff @(posedge slow_clk or posedge reset) begin
+    if (reset)
+      reset_timer <= 14'd12500;
+    else if (|reset_timer)
+      reset_timer <= reset_timer - 1;
   end
-  assign slow_reset = |rst_edge_cnt;
+  assign slow_reset = |reset_timer;
 
   // shift register
   logic mdio_in;

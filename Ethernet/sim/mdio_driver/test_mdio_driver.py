@@ -34,15 +34,11 @@ async def test(dut):
     print(f"using seed: {seed}")
 
     # start system clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 8, units="ns").start())
     cocotb.start_soon(random_read(dut))
     await reset(dut)
 
-    await ClockCycles(dut.clk, 4000)
-    await reset(dut)
-    await ClockCycles(dut.clk, 150)
-    await reset(dut)
-    await ClockCycles(dut.clk, 100000)
+    await Timer(11, units="ms")
 
 
    
