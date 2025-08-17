@@ -1,41 +1,25 @@
 import asyncio
 import random
 from queue import Queue
-import os
 
 import cocotb
 from cocotb.triggers import Timer, ReadOnly, ReadWrite, ClockCycles, RisingEdge, FallingEdge
 from cocotb.clock import Clock
-from cocotbext.uart import UartSource, UartSink
 
-iters = 200000
-fifo_size = 32
+iters = 1000000
 flag_done = asyncio.Event()
+fifo_size = 16
 
-async def write_data(dut, ref_fifo):
-    dut.commit.value = 1
-    dut.revert.value = 0
-    for _ in range(iters):
-        b = int.from_bytes(random.randbytes(1), 'big')
-        ref_fifo.put(b)
-        dut._log.debug(f"{_} writing data >>{hex(b)}")
-        dut.data_in.value = b
-        dut.valid_in.value = 1
-        # wait one cycle after ready_in asserts
-        while True:
-            await FallingEdge(dut.clk)
-            if dut.ready_in.value:
-                break
-            await RisingEdge(dut.clk)
-        await RisingEdge(dut.clk)
-
-        # deassert if waiting a random amount of cycles
-        dut.valid_in.value = 0
-        # wait a random number of cycles before pushing new data
-        await ClockCycles(dut.clk, random.randint(0, 2))
+@cocotb.coroutine
+async def reset(dut):
+    await RisingEdge(dut.clk)
+    dut.reset.value = 1
+    await ClockCycles(dut.clk, 5)
+    dut.reset.value = 0
+    print("DUT reset")
 
 
-async def spec_write_data(dut, ref_fifo):
+async def spec_write_random(dut, ref_fifo):
     spec_fifo = Queue()
     uncommitted_cnt = 0
 
@@ -93,6 +77,7 @@ async def read_data(dut, ref_fifo):
         # read data
         b = dut.data_out.value
         dut._log.debug(f"{_} reading data <<{hex(b)}")
+        assert ref_fifo.qsize() != 0, "ref fifo is empty?"
         ref = ref_fifo.get()
         assert b == ref, f"FIFO output invalid | read {hex(b)} : reference {hex(ref)}"
 
@@ -102,46 +87,33 @@ async def read_data(dut, ref_fifo):
         # wait a random number of cycles before popping more data
         await ClockCycles(dut.clk, random.randint(0, 2))
 
-
-
+    
 
 @cocotb.test()
-async def fifo_test1(dut):
+async def test_spec_fifo_random(dut):
     ref_fifo = Queue()
 
-    # start system clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 1, units="ns").start())
+    await reset(dut)
 
-    await RisingEdge(dut.clk)
-    dut.reset.value = 1
-    await ClockCycles(dut.clk, 5)
-    dut.reset.value = 0
-    await RisingEdge(dut.clk)
-
-    fifo_write = cocotb.start_soon(write_data(dut, ref_fifo))
+    fifo_write = cocotb.start_soon(spec_write_random(dut, ref_fifo))
     fifo_read = cocotb.start_soon(read_data(dut, ref_fifo))
 
     await fifo_write
     await fifo_read
     #await Timer(1, 'us')
 
+#@cocotb.test()
+async def test_spec_fifo(dut):
+    cocotb.start_soon(Clock(dut.clk, 1, units="ns").start())
+    await reset(dut)
 
-@cocotb.test()
-async def fifo_test2(dut):
-    ref_fifo = Queue()
+    for _ in range(20):
+        dut.valid_in.value = 1
+        b = int.from_bytes(random.randbytes(1), 'big')
+        dut.data_in.value = b
 
-    # start system clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+        await RisingEdge(dut.clk)
 
-    await RisingEdge(dut.clk)
-    dut.reset.value = 1
-    await ClockCycles(dut.clk, 5)
-    dut.reset.value = 0
-    await RisingEdge(dut.clk)
 
-    fifo_write = cocotb.start_soon(spec_write_data(dut, ref_fifo))
-    fifo_read = cocotb.start_soon(read_data(dut, ref_fifo))
 
-    await fifo_write
-    await fifo_read
-    #await Timer(1, 'us')

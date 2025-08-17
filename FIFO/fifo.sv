@@ -1,6 +1,9 @@
-module fifo #(parameter WIDTH = 8, parameter DEPTH = 8, 
-              parameter ALMOST_FULL_THRESHOLD = 0,
-              parameter ALMOST_EMPTY_THRESHOLD = 0) (
+module fifo #(
+  parameter WIDTH = 8, 
+  parameter DEPTH = 8, 
+  parameter ALMOST_FULL_THRESHOLD = 0,
+  parameter ALMOST_EMPTY_THRESHOLD = 0
+) (
   input  logic clk,
   input  logic reset,
 
