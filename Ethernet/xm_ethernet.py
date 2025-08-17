@@ -16,8 +16,14 @@ def main():
     #write_romfile('test.txt', frame)
     #write_pcap('test.pcap', frame)
     
-    print(list(frame))
+    #print([hex(b) for b in list(frame)])
 
+    sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+    sock.bind((INTERFACE, 0))
+
+    send_frame(sock, frame, 1)
+    frame = receive_frame(sock)
+    process_frame(frame)
 
 
 
@@ -27,6 +33,21 @@ def gen_frame(dest: bytes, src: bytes, type: bytes, payload: bytes) -> bytes:
     fcs = compute_crc32(frame)
     frame += fcs
     return frame
+
+
+def process_frame(frame: bytes):
+    eth_header = frame[:14]
+    dest_mac, src_mac, eth_type = struct.unpack("!6s6sH", eth_header)
+    payload = frame[14:-4]
+    fcs = frame[-4:]
+
+    dest_mac = ':'.join(format(x, '02x') for x in dest_mac)
+    src_mac = ':'.join(format(x, '02x') for x in src_mac)
+
+    print(f"Destination MAC: {dest_mac}")
+    print(f"Source MAC: {src_mac}")
+    print(f"EtherType: {hex(eth_type)}")
+    print(f"Payload: {payload}")
 
 
 def compute_crc32(frame_bytes: bytes) -> bytes:
@@ -82,12 +103,14 @@ def write_romfile(filename: str, frame: bytes):
         f.write(data)
 
 
-def send_frame(frame: bytes, cnt: int):
-    s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW)
-    s.bind((INTERFACE, 0))
-
+def send_frame(sock: socket.socket, frame: bytes, cnt: int):
     for _ in range(cnt):
-        s.send(frame)
+        sock.send(frame)
+
+def receive_frame(sock: socket.socket):
+    raw_frame = sock.recv(65535)
+    return raw_frame
+
 
 if __name__ == "__main__":
     main()

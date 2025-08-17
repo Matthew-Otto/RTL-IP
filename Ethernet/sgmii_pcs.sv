@@ -13,10 +13,10 @@ module sgmii_pcs (
   output logic       eth_ready,
 
   // input data (TX)
+  output logic       ready_in,
   input  logic       valid_in,
   input  logic [7:0] data_in,
   input  logic       eof_in,
-  output logic       pause_in,
 
   // output data (RX)
   output logic       valid_out,
@@ -37,7 +37,8 @@ module sgmii_pcs (
     K23_7 = 8'hF7, // carrier extend
     K30_7 = 8'hFE, // error prop
     D21_5 = 8'hB5, // config 1
-    D2_2  = 8'h42; // config 2
+    D2_2  = 8'h42, // config 2
+    SFD   = 8'hD5; // Preamble termination (start of frame delimiter)
 
   logic rx_ready;
 
@@ -78,8 +79,8 @@ module sgmii_pcs (
     RX_CFG_IDLE,
     RX_CFG1,
     RX_CFG2,
-    RX_SOF,
-    RX_PACKET,
+    RX_PREAMBLE,
+    RX_FRAME,
     RX_EXT
   } rx_state, next_rx_state;
 
@@ -133,8 +134,8 @@ module sgmii_pcs (
           next_rx_state = RX_LOS;
         else if (comma && ~|offset)
           next_rx_state = RX_CFG_IDLE;
-        else if (dec_ctrl == K27_7)
-          next_rx_state = RX_SOF;
+        else if (dec_ctrl == K27_7) // Start of Frame
+          next_rx_state = RX_PREAMBLE;
         else
           next_rx_state = RX_LOS;
       end
@@ -160,12 +161,13 @@ module sgmii_pcs (
         next_rx_state = RX_CTRL;
       end
 
-      RX_SOF : begin
+      RX_PREAMBLE : begin
         rx_ready = 1;
-        next_rx_state = RX_PACKET;
+        if (dec_ctrl == SFD)
+          next_rx_state = RX_FRAME;
       end
 
-      RX_PACKET : begin
+      RX_FRAME : begin
         rx_ready = 1;
         if (dec_ctrl == K29_7) // end of frame
           next_rx_state = RX_EXT;
@@ -188,10 +190,11 @@ module sgmii_pcs (
   //// TX Channel //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  logic tx_buffer_valid;
-  logic tx_buffer_ready;
+  logic       tx_buffer_valid;
+  logic       tx_buffer_ready;
   logic [7:0] tx_buffer_data;
-  logic tx_buffer_eof;
+  logic       tx_buffer_eof;
+  logic       pause_data_in;
 
   logic       tx_even;
   logic       control_symbol;
@@ -302,13 +305,15 @@ module sgmii_pcs (
     .clk,
     .reset,
     .ready_in(),
-    .valid_in(valid_in && ~pause_in),
+    .valid_in(valid_in && ready_in),
     .data_in({eof_in,data_in}),
     .ready_out(tx_buffer_ready),
     .valid_out(tx_buffer_valid),
     .data_out({tx_buffer_eof,tx_buffer_data}),
-    .almost_full(pause_in),
+    .almost_full(pause_data_in),
     .almost_empty()
   );
+
+  assign ready_in = ~pause_data_in;
 
 endmodule : sgmii_pcs
