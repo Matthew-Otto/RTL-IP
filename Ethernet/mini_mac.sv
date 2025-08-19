@@ -7,6 +7,7 @@ module mini_mac #(
 ) (
   input  logic       clk,  // 125MHz phase-aligned clock from SERDES
   input  logic       reset,
+  output logic       pcs_locked,
 
   // RX payload interface
   input  logic       ready_out,
@@ -21,6 +22,7 @@ module mini_mac #(
   input  logic       eof_in,
 
   // SERDES interface
+  input  logic       rx_clk,
   input  logic [9:0] rx_data,
   output logic       rx_bitslip,
   output logic [9:0] tx_data
@@ -37,13 +39,14 @@ module mini_mac #(
   sgmii_pcs sgmii_pcs_i (
     .clk,
     .reset,
-    .eth_ready(),
+    .pcs_locked,
     .ready_in(pcs_ready_in),
     .valid_in(pcs_valid_in),
     .data_in(pcs_data_in),
     .eof_in(pcs_eof_in),
     .valid_out(pcs_valid_out),
     .data_out(pcs_data_out),
+    .rx_clk,
     .rx_data,
     .rx_bitslip,
     .tx_data
@@ -73,8 +76,8 @@ module mini_mac #(
   } rx_state, next_rx_state;
   
   always_ff @(posedge clk) begin
-    if (reset) rx_state <= RX_IDLE;
-    else       rx_state <= next_rx_state;
+    if (reset || ~pcs_locked) rx_state <= RX_IDLE;
+    else                      rx_state <= next_rx_state;
 
     rx_cnt <= next_rx_cnt;
   end
@@ -118,7 +121,7 @@ module mini_mac #(
     .clk,
     .reset,
     .commit(crc_pass),
-    .revert(crc_fail),
+    .revert(crc_fail || ~pcs_locked),
     .ready_in(),
     .valid_in(buffer_wr_en),
     .data_in({eof_wr,rx_shift_reg[0]}),

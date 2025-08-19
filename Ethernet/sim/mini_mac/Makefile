@@ -9,6 +9,9 @@ MODULE = test_$(DUT)
 VERILOG_SOURCES += $(shell find ../.. -name "*.sv")
 VERILOG_SOURCES += $(shell find ../../../FIFO -name "*.sv")
 VERILOG_SOURCES += $(shell find ../../../CRC -name "*.sv")
+VERILOG_SOURCES += $(shell find ../../../CDC -name "*.sv")
+VERILOG_SOURCES += $(shell find ../../../Resets -name "*.sv")
+VERILOG_SOURCES += $(shell find ../../../Memory -name "*.sv")
 
 
 # warnings

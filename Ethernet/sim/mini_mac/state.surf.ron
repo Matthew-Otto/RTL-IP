@@ -45,6 +45,24 @@
                     selected: false,
                 ),
                 (
+                    item_ref: (66),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (67),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (72),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
                     item_ref: (3),
                     level: 0,
                     unfolded: true,
@@ -63,7 +81,31 @@
                     selected: false,
                 ),
                 (
+                    item_ref: (61),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (62),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (63),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
                     item_ref: (6),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (68),
                     level: 1,
                     unfolded: true,
                     selected: false,
@@ -106,6 +148,24 @@
                 ),
                 (
                     item_ref: (14),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (69),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (70),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
+                    item_ref: (71),
                     level: 1,
                     unfolded: true,
                     selected: false,
@@ -275,140 +335,33 @@
             ],
         ),
         displayed_items: {
-            (5): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                            "sgmii_pcs_i",
-                        ],
-                        id: Wellen((6)),
-                    ),
-                    name: "eth_ready",
-                    id: Wellen((95)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "eth_ready",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (1): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "clk",
-                    id: Wellen((17)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "clk",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (2): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "reset",
-                    id: Wellen((18)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "reset",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (4): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "rx_state",
-                    id: Wellen((48)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "mini_mac.rx_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (11): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "pcs_data_out",
-                    id: Wellen((31)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "pcs_data_out [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (9): Group((
-                name: "MAC RX",
-                color: None,
-                background_color: None,
-                content: [],
-                is_open: false,
-            )),
-            (3): Divider((
+            (69): Divider((
                 color: None,
                 background_color: None,
                 name: None,
             )),
-            (10): Variable((
+            (70): Variable((
                 variable_ref: (
                     path: (
                         strs: [
                             "mini_mac",
+                            "spec_fifo_i",
                         ],
-                        id: Wellen((2)),
+                        id: Wellen((18)),
                     ),
-                    name: "pcs_valid_out",
-                    id: Wellen((30)),
+                    name: "wr_ptr",
+                    id: Wellen((272)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "pcs_valid_out",
+                display_name: "wr_ptr [10:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (60): Variable((
+            (15): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -416,62 +369,12 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "pcs_eof_in",
-                    id: Wellen((35)),
+                    name: "eof_wr",
+                    id: Wellen((43)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "pcs_eof_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (56): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "eof_in",
-                    id: Wellen((26)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "eof_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (52): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (45): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (50): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "data_out",
-                    id: Wellen((21)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "data_out [7:0]",
+                display_name: "eof_wr",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -487,7 +390,7 @@
                         id: Wellen((2)),
                     ),
                     name: "valid_in",
-                    id: Wellen((24)),
+                    id: Wellen((27)),
                 ),
                 color: None,
                 background_color: None,
@@ -498,7 +401,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (43): Variable((
+            (55): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -506,15 +409,254 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "tx_state",
-                    id: Wellen((61)),
+                    name: "data_in",
+                    id: Wellen((28)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "mini_mac.tx_state [31:0]",
+                display_name: "data_in [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (3): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (57): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_ready_in",
+                    id: Wellen((36)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_ready_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "clk",
+                    id: Wellen((19)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (50): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "data_out",
+                    id: Wellen((24)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "data_out [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (13): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "crc_pass",
+                    id: Wellen((40)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "crc_pass",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (60): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_eof_in",
+                    id: Wellen((39)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_eof_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (16): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (7): Group((
+                name: "SGMII RX",
+                color: None,
+                background_color: None,
+                content: [],
+                is_open: false,
+            )),
+            (4): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_state",
+                    id: Wellen((51)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "mini_mac.rx_state [31:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (12): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "rx_shift_reg",
+                        ],
+                        id: Wellen((3)),
+                    ),
+                    name: "[0]",
+                    id: Wellen((44)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "[0] [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (53): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "ready_in",
+                    id: Wellen((26)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "ready_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (71): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "spec_fifo_i",
+                        ],
+                        id: Wellen((18)),
+                    ),
+                    name: "spec_wr_ptr",
+                    id: Wellen((274)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "spec_wr_ptr [10:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (59): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_data_in",
+                    id: Wellen((38)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_data_in [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (11): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_data_out",
+                    id: Wellen((35)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_data_out [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
                 field_formats: [],
                 height_scaling_factor: None,
             )),
@@ -528,7 +670,7 @@
                         id: Wellen((6)),
                     ),
                     name: "rx_state",
-                    id: Wellen((121)),
+                    id: Wellen((127)),
                 ),
                 color: None,
                 background_color: None,
@@ -536,6 +678,145 @@
                 display_name_type: Unique,
                 manual_name: None,
                 format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (61): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "sgmii_pcs_i",
+                        ],
+                        id: Wellen((6)),
+                    ),
+                    name: "rx_data",
+                    id: Wellen((106)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_data [9:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (44): Group((
+                name: "MAC TX",
+                color: None,
+                background_color: None,
+                content: [],
+                is_open: false,
+            )),
+            (19): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "spec_fifo_i",
+                        ],
+                        id: Wellen((18)),
+                    ),
+                    name: "wr_ptr",
+                    id: Wellen((272)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "wr_ptr [10:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (48): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "ready_out",
+                    id: Wellen((22)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "ready_out",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (58): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_valid_in",
+                    id: Wellen((37)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_valid_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (47): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (56): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "eof_in",
+                    id: Wellen((29)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "eof_in",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (40): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (10): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_valid_out",
+                    id: Wellen((34)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_valid_out",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
                 field_formats: [],
                 height_scaling_factor: None,
             )),
@@ -548,11 +829,195 @@
                         id: Wellen((2)),
                     ),
                     name: "eof_out",
-                    id: Wellen((22)),
+                    id: Wellen((25)),
                 ),
                 color: None,
                 background_color: None,
                 display_name: "eof_out",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (17): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "buffer_wr_en",
+                    id: Wellen((42)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "buffer_wr_en",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (14): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "crc_fail",
+                    id: Wellen((41)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "crc_fail",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (39): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (43): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "tx_state",
+                    id: Wellen((64)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "mini_mac.tx_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (63): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "sgmii_pcs_i",
+                        ],
+                        id: Wellen((6)),
+                    ),
+                    name: "dec_data",
+                    id: Wellen((125)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "dec_data [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (9): Group((
+                name: "MAC RX",
+                color: None,
+                background_color: None,
+                content: [],
+                is_open: false,
+            )),
+            (67): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "pcs_locked",
+                    id: Wellen((21)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "pcs_locked",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (72): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_clk",
+                    id: Wellen((30)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (49): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "valid_out",
+                    id: Wellen((23)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "valid_out",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (8): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (52): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (62): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "mini_mac",
+                            "sgmii_pcs_i",
+                        ],
+                        id: Wellen((6)),
+                    ),
+                    name: "dec_ctrl",
+                    id: Wellen((126)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "dec_ctrl [7:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -569,7 +1034,7 @@
                         id: Wellen((6)),
                     ),
                     name: "tx_state",
-                    id: Wellen((133)),
+                    id: Wellen((140)),
                 ),
                 color: None,
                 background_color: None,
@@ -580,32 +1045,12 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (58): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "pcs_valid_in",
-                    id: Wellen((33)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "pcs_valid_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (40): Divider((
+            (45): Divider((
                 color: None,
                 background_color: None,
                 name: None,
             )),
-            (13): Variable((
+            (2): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -613,225 +1058,17 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "crc_pass",
-                    id: Wellen((37)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "crc_pass",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (53): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "ready_in",
-                    id: Wellen((23)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "ready_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (19): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                            "spec_fifo_i",
-                        ],
-                        id: Wellen((13)),
-                    ),
-                    name: "wr_ptr",
-                    id: Wellen((215)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "wr_ptr [10:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (17): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "buffer_wr_en",
-                    id: Wellen((39)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "buffer_wr_en",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (46): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (15): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "eof_wr",
-                    id: Wellen((40)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "eof_wr",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (16): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (39): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (55): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "data_in",
-                    id: Wellen((25)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "data_in [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (14): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "crc_fail",
-                    id: Wellen((38)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "crc_fail",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (49): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "valid_out",
+                    name: "reset",
                     id: Wellen((20)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "valid_out",
+                display_name: "reset",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
                 height_scaling_factor: None,
-            )),
-            (48): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "ready_out",
-                    id: Wellen((19)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "ready_out",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (47): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (59): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "pcs_data_in",
-                    id: Wellen((34)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "pcs_data_in [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (7): Group((
-                name: "SGMII RX",
-                color: None,
-                background_color: None,
-                content: [],
-                is_open: false,
             )),
             (42): Group((
                 name: "SGMII TX",
@@ -840,65 +1077,17 @@
                 content: [],
                 is_open: false,
             )),
-            (8): Divider((
+            (46): Divider((
                 color: None,
                 background_color: None,
                 name: None,
             )),
-            (57): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "pcs_ready_in",
-                    id: Wellen((32)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "pcs_ready_in",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (12): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "mini_mac",
-                            "rx_shift_reg",
-                        ],
-                        id: Wellen((3)),
-                    ),
-                    name: "[0]",
-                    id: Wellen((41)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "[0] [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (44): Group((
-                name: "MAC TX",
-                color: None,
-                background_color: None,
-                content: [],
-                is_open: false,
-            )),
         },
-        display_item_ref_counter: 60,
+        display_item_ref_counter: 72,
         viewports: [
             (
-                curr_left: (0.06234850343701177),
-                curr_right: (0.18935365593041448),
+                curr_left: (-0.031024872613060424),
+                curr_right: (0.1240994904522417),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -907,11 +1096,11 @@
                 move_strategy: Instant,
             ),
         ],
-        cursor: Some((1, [
-            1909832,
+        cursor: Some((-1, [
+            1573512,
         ])),
         markers: {},
-        focused_item: Some((12)),
+        focused_item: Some((4)),
         focused_transaction: (None, None),
         default_variable_name_type: Unique,
         scroll_offset: 0.0,

@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 import socket
 import struct
 import random
+from time import sleep
 
 INTERFACE = "enp14s0"
 
@@ -8,30 +11,48 @@ dest_mac = b'\xff\xff\xff\xff\xff\xff'
 src_mac = b'\x00\x07\xed\x12\x34\x56'
 ethertype = b'\x08\x00'
 
-
 def main():
-    payload = random.randbytes(64)
-    frame = gen_frame(dest_mac, src_mac, ethertype, payload)
+    i = 0
+    while True:
+        payload = random.randbytes(i)
+        i += 1
+        frame = gen_frame(dest_mac, src_mac, ethertype, payload)
 
-    #write_romfile('test.txt', frame)
-    #write_pcap('test.pcap', frame)
-    
-    #print([hex(b) for b in list(frame)])
+        print(f"frame len: {len(frame)}")
 
-    sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-    sock.bind((INTERFACE, 0))
+        #write_romfile('test.txt', frame)
+        #write_pcap('test.pcap', frame)
+        
+        print([hex(b) for b in list(frame)])
 
-    send_frame(sock, frame, 1)
-    frame = receive_frame(sock)
-    process_frame(frame)
+        sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+        sock.bind((INTERFACE, 0))
 
+        send_frame(sock, frame, 1)
+        #sleep(1)
+        rx_frame = receive_frame(sock)
+        process_frame(rx_frame)
+
+        if frame != rx_frame:
+            print("\n\nrx frame did not match tx frame\n\n")
+
+        input("press a key to repeat")
+
+
+def send_frame(sock: socket.socket, frame: bytes, cnt: int):
+    for _ in range(cnt):
+        sock.send(frame)
+
+def receive_frame(sock: socket.socket):
+    raw_frame = sock.recv(65535)
+    return raw_frame
 
 
 def gen_frame(dest: bytes, src: bytes, type: bytes, payload: bytes) -> bytes:
     payload = payload.ljust(46, b'\x00')
     frame = dest + src + type + payload
-    fcs = compute_crc32(frame)
-    frame += fcs
+    #fcs = compute_crc32(frame)
+    #frame += fcs
     return frame
 
 
@@ -101,15 +122,6 @@ def write_romfile(filename: str, frame: bytes):
     
     with open(filename, "w") as f:
         f.write(data)
-
-
-def send_frame(sock: socket.socket, frame: bytes, cnt: int):
-    for _ in range(cnt):
-        sock.send(frame)
-
-def receive_frame(sock: socket.socket):
-    raw_frame = sock.recv(65535)
-    return raw_frame
 
 
 if __name__ == "__main__":

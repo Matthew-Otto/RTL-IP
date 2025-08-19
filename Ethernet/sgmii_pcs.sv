@@ -10,7 +10,7 @@
 module sgmii_pcs (
   input  logic       clk, // 125MHz phase-aligned clock from SERDES
   input  logic       reset,
-  output logic       eth_ready,
+  output logic       pcs_locked,
 
   // input data (TX)
   output logic       ready_in,
@@ -23,6 +23,7 @@ module sgmii_pcs (
   output logic [7:0] data_out,
 
   // SERDES interface
+  input  logic       rx_clk,
   input  logic [9:0] rx_data,
   output logic       rx_bitslip,
   output logic [9:0] tx_data
@@ -40,14 +41,13 @@ module sgmii_pcs (
     D2_2  = 8'h42, // config 2
     SFD   = 8'hD5; // Preamble termination (start of frame delimiter)
 
-  logic rx_ready;
-
-  assign eth_ready = rx_ready;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// RX Channel //////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  logic       pcs_locked_rx;
+  logic       valid_out_rx;
   logic       rx_even, rx_set_even;
   logic       comma;
   logic [3:0] offset;
@@ -55,8 +55,8 @@ module sgmii_pcs (
   logic [7:0] dec_ctrl;
 
   comma_align comma_align_i (
-    .clk,
-    .reset,
+    .clk(rx_clk),
+    .reset(),
     .input_data(rx_data),
     .offset,
     .comma
@@ -84,8 +84,8 @@ module sgmii_pcs (
     RX_EXT
   } rx_state, next_rx_state;
 
-  always_ff @(posedge clk) begin
-    if (reset) rx_state <= RX_LOS;
+  always_ff @(posedge rx_clk) begin
+    if (reset) rx_state <= RX_LOS; // TODO synchronize this reset
     else       rx_state <= next_rx_state;
 
     if (rx_set_even) rx_even <= 0; // setting this cycle even means next cycle must be odd
@@ -94,10 +94,10 @@ module sgmii_pcs (
 
   always_comb begin
     next_rx_state = rx_state;
-    rx_ready = 0;
+    pcs_locked_rx = 0;
     rx_bitslip = 0;
     rx_set_even = 0;
-    valid_out = 0;
+    valid_out_rx = 0;
 
     case (rx_state)
       RX_LOS : begin // LOSS_OF_SYNC
@@ -129,7 +129,7 @@ module sgmii_pcs (
       end
 
       RX_CTRL : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         if (~rx_even)
           next_rx_state = RX_LOS;
         else if (comma && ~|offset)
@@ -142,7 +142,7 @@ module sgmii_pcs (
 
       // read data code group to determine if this is a config or idle seq
       RX_CFG_IDLE : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         case (dec_data)
           D5_6,
           D16_2: next_rx_state = RX_CTRL;
@@ -153,38 +153,60 @@ module sgmii_pcs (
       end
 
       RX_CFG1 : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         next_rx_state = RX_CFG2;
       end
       RX_CFG2 : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         next_rx_state = RX_CTRL;
       end
 
       RX_PREAMBLE : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         if (dec_ctrl == SFD)
           next_rx_state = RX_FRAME;
       end
 
       RX_FRAME : begin
-        rx_ready = 1;
-        if (dec_ctrl == K29_7) // end of frame
+        pcs_locked_rx = 1;
+        if (comma) begin // EOF symbol was missed, error
+          pcs_locked_rx = 0;
+          next_rx_state = RX_LOS;
+        end else if (dec_ctrl == K29_7) // end of frame
           next_rx_state = RX_EXT;
         else
-          valid_out = 1;
+          valid_out_rx = 1;
       end
 
       RX_EXT : begin
-        rx_ready = 1;
+        pcs_locked_rx = 1;
         next_rx_state = rx_even ? RX_EXT : RX_CTRL;
       end
     endcase
   end
 
-  assign data_out = dec_data;
+  // Move from rx_clk domain to clk domainc
+  one_bit_synchro sync_pcs_locked (
+    .clk,
+    .reset,
+    .data_in(pcs_locked_rx),
+    .data_out(pcs_locked)
+  );
 
-
+  async_fifo #(
+    .ADDR_WIDTH(8),
+    .DATA_WIDTH(8)
+  ) cdc_fifo (
+    .clk_in(rx_clk),
+    .clk_out(clk),
+    .reset,
+    .ready_in(),
+    .valid_in(valid_out_rx),
+    .data_in(dec_data),
+    .ready_out(1),
+    .valid_out(valid_out),
+    .data_out(data_out)
+  );
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   //// TX Channel //////////////////////////////////////////////////////////////////////////////////////////
@@ -197,10 +219,11 @@ module sgmii_pcs (
   logic       pause_data_in;
 
   logic       tx_even;
+  logic [2:0] preamble_cnt;
   logic       control_symbol;
   logic       tx_rd;
   logic [7:0] tx_char;
-  logic [2:0] preamble_cnt;
+  logic [9:0] tx_data_buf;
   
   enum {
     IDLE1,
@@ -209,8 +232,7 @@ module sgmii_pcs (
     PREAMBLE,
     FRAME,
     EOF,
-    C_EXT,
-    INTER_FRAME // TODO
+    C_EXT
   } tx_state, next_tx_state;
 
   always_ff @(posedge clk) begin
@@ -292,9 +314,12 @@ module sgmii_pcs (
     .input_valid(1'b1),
     .input_ctrl(control_symbol), // sel if input char should be encoded as a control symbol
     .input_data(tx_char),
-    .output_data(tx_data),
+    .output_data(tx_data_buf),
     .rd(tx_rd)
   );
+
+  always_ff @(posedge clk)
+    tx_data <= tx_data_buf;
 
 
   fifo #(

@@ -57,8 +57,8 @@ module async_fifo #(
   end
 
   always_ff @(posedge clk_in or posedge reset_in) begin
-    if (reset) {r_ptr_g_sync2, r_ptr_g_sync1} <= 0;
-    else       {r_ptr_g_sync2, r_ptr_g_sync1} <= {r_ptr_g_sync1, r_ptr_g};
+    if (reset_in) {r_ptr_g_sync2, r_ptr_g_sync1} <= 0;
+    else          {r_ptr_g_sync2, r_ptr_g_sync1} <= {r_ptr_g_sync1, r_ptr_g};
   end
 
 
@@ -78,8 +78,8 @@ module async_fifo #(
   end
 
   always_ff @(posedge clk_out or posedge reset_out) begin
-    if (reset) {w_ptr_g_sync2, w_ptr_g_sync1} <= 0;
-    else       {w_ptr_g_sync2, w_ptr_g_sync1} <= {w_ptr_g_sync1, w_ptr_g};
+    if (reset_out) {w_ptr_g_sync2, w_ptr_g_sync1} <= 0;
+    else           {w_ptr_g_sync2, w_ptr_g_sync1} <= {w_ptr_g_sync1, w_ptr_g};
   end
 
 
