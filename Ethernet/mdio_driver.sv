@@ -36,24 +36,24 @@ module mdio_driver (
 
   // clock divider
   logic slow_clk;
-  logic [5:0] cnt;
+  logic [4:0] cnt;
   always_ff @(posedge clk) begin
-    if (reset || (cnt == 6'd50)) 
+    if (reset || (cnt == 5'd24)) 
       cnt <= 0;
     else
       cnt <= cnt + 1;
 
-    if (cnt == 50)
+    if (cnt == 5'd24)
       slow_clk <= ~slow_clk;
   end
   assign enet_mdc = slow_clk;
 
   // reset timer
   logic        slow_reset;
-  logic [13:0] reset_timer;
+  logic [14:0] reset_timer;
   always_ff @(posedge slow_clk or posedge reset) begin
     if (reset)
-      reset_timer <= 14'd12500;
+      reset_timer <= 15'd25000;
     else if (|reset_timer)
       reset_timer <= reset_timer - 1;
   end
