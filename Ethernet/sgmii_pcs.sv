@@ -187,8 +187,8 @@ module sgmii_pcs (
 
   // Move from rx_clk domain to clk domainc
   one_bit_synchro sync_pcs_locked (
-    .clk,
-    .reset,
+    .clk(clk),
+    .reset(reset),
     .data_in(pcs_locked_rx),
     .data_out(pcs_locked)
   );
@@ -223,7 +223,6 @@ module sgmii_pcs (
   logic       control_symbol;
   logic       tx_rd;
   logic [7:0] tx_char;
-  logic [9:0] tx_data_buf;
   
   enum {
     IDLE1,
@@ -314,13 +313,9 @@ module sgmii_pcs (
     .input_valid(1'b1),
     .input_ctrl(control_symbol), // sel if input char should be encoded as a control symbol
     .input_data(tx_char),
-    .output_data(tx_data_buf),
+    .output_data(tx_data),
     .rd(tx_rd)
   );
-
-  always_ff @(posedge clk)
-    tx_data <= tx_data_buf;
-
 
   fifo #(
     .WIDTH(9),

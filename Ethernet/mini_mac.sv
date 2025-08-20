@@ -3,7 +3,7 @@
 module mini_mac #(
   parameter DEST_MAC = 48'hFFFFFF_FFFFFF,
   parameter SRC_MAC = 48'h0007ed123456,
-  parameter ETH_TYPE = 16'h0800
+  parameter ETH_TYPE = 16'h88B5
 ) (
   input  logic       clk,  // 125MHz phase-aligned clock from SERDES
   input  logic       reset,
@@ -151,7 +151,6 @@ module mini_mac #(
   logic [4:0]  tx_cnt, next_tx_cnt;
   
   logic        tx_buffer_ready;
-  logic        tx_buffer_valid;
   logic [7:0]  tx_buffer_data;
   logic        tx_buffer_eof;
 
@@ -282,7 +281,7 @@ module mini_mac #(
     .valid_in(valid_in),
     .data_in({eof_in,data_in}),
     .ready_out(tx_buffer_ready),
-    .valid_out(tx_buffer_valid),
+    .valid_out(),
     .data_out({tx_buffer_eof,tx_buffer_data}),
     .almost_full(),
     .almost_empty()
@@ -293,7 +292,7 @@ module mini_mac #(
     if (reset)
       packet_cnt <= 0;
     else
-      case ({eof_in,process_packet})
+      case ({(ready_in && valid_in && eof_in),process_packet})
         2'b10 : packet_cnt <= packet_cnt + 1;
         2'b01 : packet_cnt <= packet_cnt - 1;
         default;

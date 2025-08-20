@@ -6,10 +6,12 @@ module one_bit_synchro (
   output logic data_out
 );
 
-  logic sync;
+  (* async_reg = "true" *) logic sync2, sync1;
 
   always_ff @(posedge clk or posedge reset)
-    if (reset) {data_out,sync} <= 0;
-    else       {data_out,sync} <= {sync, data_in};
+    if (reset) {sync2,sync1} <= 0;
+    else       {sync2,sync1} <= {sync1, data_in};
+
+  assign data_out = sync2;
 
 endmodule : one_bit_synchro
