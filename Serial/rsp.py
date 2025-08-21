@@ -90,7 +90,7 @@ class RSP:
         packet = OPCODE["READ"].to_bytes(1)  # opcode (read)
         packet += self.seq_num.to_bytes(2)   # seqnum (2 byte)
         packet += address.to_bytes(4)        # address (4 byte)
-        packet += byte_cnt.to_bytes(2)  # len (2 bytes)
+        packet += byte_cnt.to_bytes(2)       # len (2 bytes)
         seq_num = self._send_packet(packet)
 
         return self.loop.run_until_complete(self._retrieve(seq_num))

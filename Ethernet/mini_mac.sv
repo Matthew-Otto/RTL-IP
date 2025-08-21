@@ -242,7 +242,9 @@ module mini_mac #(
         pcs_valid_in = 1;
         tx_buffer_ready = 1;
         pcs_data_in = tx_buffer_data;
-        next_tx_pad_len = tx_pad_len - 1;
+        
+        if (tx_pad_len != 0)
+          next_tx_pad_len = tx_pad_len - 1;
 
         if (tx_buffer_eof) begin
           next_tx_cnt = 3;

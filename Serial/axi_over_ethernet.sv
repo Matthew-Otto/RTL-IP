@@ -288,6 +288,7 @@ module axi_over_ethernet (
 
 
   // testing only
+/*
   logic          ram_we;
   logic [10-1:0] ram_addr;
   logic [7:0]    ram_r_data;
@@ -297,14 +298,18 @@ module axi_over_ethernet (
     if (ram_we)
       ram[ram_addr] <= rx_data;
     ram_r_data <= ram[ram_addr];
-  end
+  end */
 
-  /* bram bram64MB (
+  logic          ram_we;
+  logic [24-1:0] ram_addr;
+  logic [7:0]    ram_r_data;
+
+  bram bram64MB (
 		.data    (rx_data),    //   input,   width = 8,    data.datain
 		.q       (ram_r_data),       //  output,   width = 8,       q.dataout
-		.address (ram_addr), //   input,  width = 26, address.address
+		.address (ram_addr), //   input,  width = 24, address.address
 		.wren    (ram_we),    //   input,   width = 1,    wren.wren
 		.clock   (clk)    //   input,   width = 1,   clock.clk
-	); */
+	);
 
 endmodule : axi_over_ethernet

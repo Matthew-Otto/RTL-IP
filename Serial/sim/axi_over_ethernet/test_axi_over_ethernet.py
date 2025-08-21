@@ -119,6 +119,6 @@ async def autoneg_test(dut):
     await ClockCycles(dut.clk, 100)
 
 
-block = RSP(print_packet=True)
-block.write_data(0xd, random.randbytes(64))
-block.read_data(0xd, 64)
+#block = RSP(print_packet=True)
+#block.write_data(0xd, random.randbytes(64))
+#block.read_data(0xd, 64)
