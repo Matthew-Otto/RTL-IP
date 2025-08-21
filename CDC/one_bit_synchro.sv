@@ -6,7 +6,7 @@ module one_bit_synchro (
   output logic data_out
 );
 
-  (* async_reg = "true" *) logic sync2, sync1;
+  logic sync2, sync1;
 
   always_ff @(posedge clk or posedge reset)
     if (reset) {sync2,sync1} <= 0;

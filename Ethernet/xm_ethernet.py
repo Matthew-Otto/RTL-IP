@@ -1,51 +1,58 @@
 #!/usr/bin/env python3
 
-import socket
+from socket import socket, htons, AF_PACKET, SOCK_RAW, ETH_P_ALL
 import struct
 import random
 from time import sleep
 
 INTERFACE = "enp14s0"
+ETH_TYPE = 0x88B5
 
 dest_mac = b'\xff\xff\xff\xff\xff\xff'
 src_mac = b'\x00\x07\xed\x12\x34\x56'
-ethertype = b'\x08\x00'
 
 def main():
     i = 0
     while True:
-        payload = random.randbytes(i)
+        payload = random.randbytes(1500)
         i += 1
-        frame = gen_frame(dest_mac, src_mac, ethertype, payload)
+        frame = gen_frame(dest_mac, src_mac, ETH_TYPE.to_bytes(2, "big"), payload)
 
         print(f"frame len: {len(frame)}")
 
         #write_romfile('test.txt', frame)
         #write_pcap('test.pcap', frame)
         
-        print([hex(b) for b in list(frame)])
+        print([hex(b) for b in frame])
 
-        sock = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-        sock.bind((INTERFACE, 0))
+        
+        sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_TYPE))
+        sock.bind((INTERFACE, ETH_TYPE))
+        sock.settimeout(1.0)
 
         send_frame(sock, frame, 1)
-        #sleep(1)
+        print(f"cnt: {i}")
         rx_frame = receive_frame(sock)
-        process_frame(rx_frame)
+        if rx_frame:
+            process_frame(rx_frame)
 
         if frame != rx_frame:
             print("\n\nrx frame did not match tx frame\n\n")
+            quit()
 
         input("press a key to repeat")
 
 
-def send_frame(sock: socket.socket, frame: bytes, cnt: int):
+def send_frame(sock: socket, frame: bytes, cnt: int):
     for _ in range(cnt):
         sock.send(frame)
 
-def receive_frame(sock: socket.socket):
-    raw_frame = sock.recv(65535)
-    return raw_frame
+def receive_frame(sock: socket):
+    try:
+        raw_frame = sock.recv(65535)
+        return raw_frame
+    except:
+        pass
 
 
 def gen_frame(dest: bytes, src: bytes, type: bytes, payload: bytes) -> bytes:
@@ -69,6 +76,7 @@ def process_frame(frame: bytes):
     print(f"Source MAC: {src_mac}")
     print(f"EtherType: {hex(eth_type)}")
     print(f"Payload: {payload}")
+    print([hex(b) for b in frame])
 
 
 def compute_crc32(frame_bytes: bytes) -> bytes:
