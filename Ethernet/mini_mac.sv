@@ -5,7 +5,7 @@ module mini_mac #(
   parameter SRC_MAC = 48'h0007ed123456,
   parameter ETH_TYPE = 16'h88B5
 ) (
-  input  logic       clk,  // 125MHz phase-aligned clock from SERDES
+  input  logic       clk,  // 125MHz clock
   input  logic       reset,
   output logic       pcs_locked,
 
@@ -161,12 +161,15 @@ module mini_mac #(
   logic        tx_latch_crc;
   logic [23:0] tx_crc_buffer;
 
+  logic [5:0]  tx_pad_len, next_tx_pad_len;
+
   enum {
     TX_IDLE,
     TX_DEST_MAC,
     TX_SRC_MAC,
     TX_ETH_TYPE,
     TX_PAYLOAD,
+    TX_PAYLOAD_PAD,
     TX_FCS,
     TX_IPG
   } tx_state, next_tx_state;
@@ -176,6 +179,7 @@ module mini_mac #(
     else       tx_state <= next_tx_state;
 
     tx_cnt <= next_tx_cnt;
+    tx_pad_len <= next_tx_pad_len;
   end
 
   always_comb begin
@@ -187,6 +191,7 @@ module mini_mac #(
     tx_buffer_ready = 0;
     tx_latch_crc = 0;
     process_packet = 0;
+    next_tx_pad_len = tx_pad_len;
 
     case (tx_state)
       TX_IDLE : begin
@@ -201,7 +206,7 @@ module mini_mac #(
         pcs_valid_in = 1;
         pcs_data_in = DEST_MAC[tx_cnt*8+:8];
 
-        if (~|tx_cnt) begin
+        if (tx_cnt == 0) begin
           next_tx_cnt = 5;
           next_tx_state = TX_SRC_MAC;
         end else begin
@@ -213,7 +218,7 @@ module mini_mac #(
         pcs_valid_in = 1;
         pcs_data_in = SRC_MAC[tx_cnt*8+:8];
 
-        if (~|tx_cnt) begin
+        if (tx_cnt == 0) begin
           next_tx_cnt = 1;
           next_tx_state = TX_ETH_TYPE;
         end else begin
@@ -225,7 +230,8 @@ module mini_mac #(
         pcs_valid_in = 1;
         pcs_data_in = ETH_TYPE[tx_cnt*8+:8];
 
-        if (~|tx_cnt) begin
+        if (tx_cnt == 0) begin
+          next_tx_pad_len = 6'd45;
           next_tx_state = TX_PAYLOAD;
         end else begin
           next_tx_cnt = tx_cnt - 1;
@@ -236,10 +242,22 @@ module mini_mac #(
         pcs_valid_in = 1;
         tx_buffer_ready = 1;
         pcs_data_in = tx_buffer_data;
+        next_tx_pad_len = tx_pad_len - 1;
 
         if (tx_buffer_eof) begin
           next_tx_cnt = 3;
+          next_tx_state = (tx_pad_len == 0) ? TX_FCS : TX_PAYLOAD_PAD;
+        end
+      end
+
+      TX_PAYLOAD_PAD : begin
+        pcs_valid_in = 1;
+        pcs_data_in = 0;
+
+        if (tx_pad_len == 0) begin
           next_tx_state = TX_FCS;
+        end else begin
+          next_tx_pad_len = tx_pad_len - 1;
         end
       end
 
@@ -252,7 +270,7 @@ module mini_mac #(
           pcs_data_in = tx_crc_buffer[(2-tx_cnt)*8+:8];
         end
 
-        if (~|tx_cnt) begin
+        if (tx_cnt == 0) begin
           pcs_eof_in = 1;
           next_tx_cnt = 11;
           next_tx_state = TX_IPG;
@@ -262,7 +280,7 @@ module mini_mac #(
       end
 
       TX_IPG : begin
-        if (~|tx_cnt) begin
+        if (tx_cnt == 0) begin
           next_tx_state = TX_IDLE;
         end else begin
           next_tx_cnt = tx_cnt - 1;
