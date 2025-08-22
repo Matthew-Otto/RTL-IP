@@ -48,70 +48,94 @@ OPCODE = {
 
 MAX_FRAME_SIZE = 1498
 
-# todo move this to class
-condition = asyncio.Condition()
 
 class RSP:
-    def __init__(self, rtd = 1.0, src_mac=0x123456ABCDEF, dest_mac=0x0007ED123456, print_packet=False):
+    def __init__(self, rtd = 1.0, src_mac=0x123456ABCDEF, dest_mac=0x0007ED123456, dump_sim=False):
         self.seq_num = 0
-        self.tx_window = {}
+        self.unacked_packets = {}
         self.rtd = rtd
         self.src_mac = src_mac.to_bytes(6)
         self.dest_mac = dest_mac.to_bytes(6)
-        self.print_packet = print_packet
+        self.dump_sim = dump_sim
         self.rx_buffer ={}
+        # async loop
+        self.loop = asyncio.get_event_loop()
         self.rx_event = asyncio.Event()
-        if not self.print_packet:
+        if not self.dump_sim:
             # socket
             self.sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_TYPE))
             self.sock.bind((INTERFACE, ETH_TYPE))
             self.sock.setblocking(False)
-            # async loop
-            self.loop = asyncio.get_event_loop()
             # register read handler
             self.loop.add_reader(self.sock.fileno(), self._receive)
+        
+        self.loop.create_task(self.debug_trigger())
 
+    async def debug_trigger(self):
+        await asyncio.sleep(10)
+        self.rx_event.set()
 
     def write_data(self, address: int, data: bytes):
-        """Send address and data to write, wait for ack from fpga"""
-        packet = OPCODE["WRITE"].to_bytes(1)  # opcode (write)
-        packet += self.seq_num.to_bytes(2)    # seqnum (2 byte)
-        packet += address.to_bytes(4)         # address (4 byte)
-        packet += len(data).to_bytes(2)       # len (2 bytes)
-        packet += data                        # payload (len bytes)
-        self._send_packet(packet)
+        """Send packets to fpga, wait until they have all been acknowledged"""
+        self.loop.run_until_complete(self._write_data_async(address, data))
 
 
-    def read_data(self, address: int, byte_cnt: int):
-        """Send address to read from, wait for data from fpga"""
-        if byte_cnt > MAX_FRAME_SIZE:
-            raise Exception("Requested byte count is too large to fit in an ethernet frame")
+    def read_data(self, address: int, byte_cnt: int) -> bytes:
+        """Send read requests to fgpa, wait for data"""
+        data = self.loop.run_until_complete(self._read_data_async(address, byte_cnt))
+        return data
+
+
+    async def _write_data_async(self, address: int, data: bytes):
+        max_payload_len = MAX_FRAME_SIZE - 29
+        for payload in self.batch(data, max_payload_len):
+            frame = self._gen_frame(self._gen_write_packet(address, payload))
+            await self._send_frame(frame)
+            address += len(payload)
+
+        while self.unacked_packets:
+            await self.rx_event.wait()
+            self.rx_event.clear()
+            print("clearing event")
         
-        packet = OPCODE["READ"].to_bytes(1)  # opcode (read)
-        packet += self.seq_num.to_bytes(2)   # seqnum (2 byte)
-        packet += address.to_bytes(4)        # address (4 byte)
-        packet += byte_cnt.to_bytes(2)       # len (2 bytes)
-        seq_num = self._send_packet(packet)
 
-        return self.loop.run_until_complete(self._retrieve(seq_num))
+    async def _read_data_async(self, address: int, byte_cnt: int) -> bytes:
+        max_payload_len = MAX_FRAME_SIZE - 29
+        req_seqs = []
+        while byte_cnt:
+            req_len = min(byte_cnt, max_payload_len)
+            frame = self._gen_frame(self._gen_read_packet(address, req_len))
+            seq_num = await self._send_frame(frame)
+            req_seqs.append(seq_num)
+            byte_cnt -= req_len
+            address += req_len
+
+        # wait for all read responses (abusing sets bc im lazy)
+        missing_seq = set(req_seqs)
+        missing_seq -= self.rx_buffer.keys()
+        while missing_seq:
+            await self.rx_event.wait()
+            missing_seq -= self.rx_buffer.keys()
+
+        # collect requested data
+        data = b''
+        for seq_num in req_seqs:
+            data += self.rx_buffer.pop(seq_num)
+        return data
 
 
-    def _send_packet(self, packet):
-        """Wrap packet in an ethernet frame and send it"""
-        frame = self.dest_mac
-        frame += self.src_mac
-        frame += ETH_TYPE.to_bytes(2)
-        frame += packet.ljust(46, b"\x00")
-
+    async def _send_frame(self, frame):
         print(f"Transmitting packet {self.seq_num}")
-        if self.print_packet:
+        if self.dump_sim:
             frame += self.compute_crc32(frame)
-            print(", ".join([f"{i:#04x}" for i in list(frame)]))
+            ff = ", ".join([f"{i:#04x}" for i in list(frame)])
+            with open("stim.dump", "w") as stim:
+                stim.write(f"[{ff}]\n")
         else:
-            self.sock.send(frame)
+            await self.loop.sock_sendall(self.sock, frame)
             # Put packet in retransmit queue
-            task = self.loop.create_task(self._retransmit(self.seq_num, packet))
-            self.tx_window[self.seq_num] = task
+            task = self.loop.create_task(self._retransmit_packet(self.seq_num, frame))
+            self.unacked_packets[self.seq_num] = task
         
         # increment seq_num
         prev_seq_num = self.seq_num
@@ -119,13 +143,6 @@ class RSP:
         if self.seq_num > 2 ** 16:
             self.seq_num = 0
         return prev_seq_num
-
-
-    async def _retrieve(self, seq_num: int) -> bytes:
-        """returns read response with specified seq_num when it arrives"""
-        if seq_num not in self.rx_buffer:
-            await self.rx_event.wait()
-        return self.rx_buffer.pop(seq_num)
 
 
     def _receive(self):
@@ -142,24 +159,24 @@ class RSP:
         opcode, seq_num = struct.unpack_from("!BH", packet)
 
         if opcode == OPCODE["WRITE_ACK"]:
-            if seq_num in self.tx_window:
-                task = self.tx_window.pop(seq_num)
+            if seq_num in self.unacked_packets:
+                task = self.unacked_packets.pop(seq_num)
                 task.cancel()
                 print(f"ACK received for {seq_num}")
 
         elif opcode == OPCODE["READ_RSP"]:
-            if seq_num in self.tx_window:
-                task = self.tx_window.pop(seq_num)
+            if seq_num in self.unacked_packets:
+                task = self.unacked_packets.pop(seq_num)
                 task.cancel()
                 print(f"Resp received for {seq_num}")
             
             address, len = struct.unpack_from("!IH", packet, 3)
             payload = packet[9:]
             self.rx_buffer[seq_num] = payload
-            self.rx_event.set()
+        self.rx_event.set()
 
 
-    async def _retransmit(self, seq_num, packet):
+    async def _retransmit_packet(self, seq_num, packet):
         """Sends a packet every self.rtd seconds until it is ACKed"""
         try:
             while True:
@@ -172,6 +189,33 @@ class RSP:
         except asyncio.CancelledError:
             pass
 
+
+    def _gen_write_packet(self, address: int, data: bytes) -> bytes:
+        """Wrap data and address in a write packet"""
+        packet =  OPCODE["WRITE"].to_bytes(1) # opcode (write)
+        packet += self.seq_num.to_bytes(2)    # seqnum (2 byte)
+        packet += address.to_bytes(4)         # address (4 byte)
+        packet += len(data).to_bytes(2)       # len (2 bytes)
+        packet += data                        # payload (len bytes)
+        return packet
+
+
+    def _gen_read_packet(self, address: int, byte_cnt: int) -> bytes:
+        """Wrap address and data_len in a read packet"""
+        packet = OPCODE["READ"].to_bytes(1)  # opcode (read)
+        packet += self.seq_num.to_bytes(2)   # seqnum (2 byte)
+        packet += address.to_bytes(4)        # address (4 byte)
+        packet += byte_cnt.to_bytes(2)       # len (2 bytes)
+        return packet
+
+    def _gen_frame(self, packet: bytes) -> bytes:
+        """Wrap packet in an ethernet frame"""
+        frame =  self.dest_mac
+        frame += self.src_mac
+        frame += ETH_TYPE.to_bytes(2)
+        frame += packet.ljust(46, b"\x00")
+        return frame
+    
     
     def compute_crc32(self, frame_bytes: bytes) -> bytes:
         """
@@ -215,3 +259,8 @@ class RSP:
             f.write(pcap_global_hdr)
             f.write(pcap_pkt_hdr)
             f.write(frame)
+
+
+    def batch(self, data: bytes, n: int) -> bytes:
+        for i in range(0, len(data), n):
+            yield data[i:i+n]

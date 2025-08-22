@@ -1,6 +1,6 @@
 module axi_over_ethernet (
-  input  logic clk,
-  input  logic reset,
+  input  logic       clk,
+  input  logic       reset,
 
   output logic       pcs_locked,
 
@@ -64,7 +64,8 @@ module axi_over_ethernet (
     SER_READ_RSP_ADDR,
     SER_READ_RSP_LEN,
     SER_READ_RSP_DATA,
-    SER_READ_RSP_EOF
+    SER_READ_RSP_EOF,
+    SER_DISCARD
   } serial_state, next_serial_state;
 
   // Reliable Serial Protocol decode
@@ -175,7 +176,7 @@ module axi_over_ethernet (
           case (opcode)
             OP_WRITE : next_serial_state = SER_WRITE;
             OP_READ : next_serial_state = SER_READ_RSP_OP;
-            default : next_serial_state = SER_IDLE;
+            default : next_serial_state = SER_DISCARD;
           endcase
         end else begin
           next_idx = idx - 1;
@@ -259,6 +260,7 @@ module axi_over_ethernet (
             payload_len_decr = 1;
             address_incr = 1;
             ram_addr = address; // TEMP
+            next_idx = 1;
             next_serial_state = SER_READ_RSP_DATA;
           end else begin
             next_idx = idx - 1;
@@ -267,13 +269,15 @@ module axi_over_ethernet (
       end
       
       SER_READ_RSP_DATA : begin
-        tx_valid = 1;
+        if (idx != 0)
+          next_idx = idx - 1;
+        tx_valid = (idx == 0);
         tx_data = ram_r_data;
         payload_len_decr = 1;
         address_incr = 1;
         ram_addr = address; // TEMP
 
-        if (payload_len == 1)
+        if (payload_len == 0)
           next_serial_state = SER_READ_RSP_EOF;
       end
 
@@ -283,26 +287,38 @@ module axi_over_ethernet (
         tx_eof = 1;
         next_serial_state = SER_IDLE;
       end
+
+      SER_DISCARD : begin
+        rx_ready = 1;
+        if (rx_eof)
+          next_serial_state = SER_IDLE;
+      end
     endcase
   end
 
 
   // testing only
-/*
+
   logic          ram_we;
-  logic [10-1:0] ram_addr;
-  logic [7:0]    ram_r_data;
-  logic [7:0] ram [(1<<10)-1:0];
+  logic [14-1:0] ram_addr;
+  logic [7:0]    ram_r_data, ram_r_data2;
+
+
+
+
+/*   logic [7:0] ram [(1<<14)-1:0];
 
   always_ff @(posedge clk) begin
     if (ram_we)
       ram[ram_addr] <= rx_data;
-    ram_r_data <= ram[ram_addr];
-  end */
+    ram_r_data2 <= ram[ram_addr];
+  end 
+  always_ff @(posedge clk) begin
+    ram_r_data <= ram_r_data2;
+  end
+    */
 
-  logic          ram_we;
-  logic [24-1:0] ram_addr;
-  logic [7:0]    ram_r_data;
+
 
   bram bram64MB (
 		.data    (rx_data),    //   input,   width = 8,    data.datain

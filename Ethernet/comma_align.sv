@@ -24,7 +24,7 @@ module comma_align (
   assign search_word = {last_word,input_data};
 
   always_comb begin
-    for (logic [4:0] i = 0; i < 10; i++) begin
+    for (int i = 0; i < 10; i++) begin
       match[i] = (search_word[i+:10] == 10'b0011111010) || (search_word[i+:10] == 10'b1100000101);
     end
 

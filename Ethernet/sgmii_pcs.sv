@@ -58,8 +58,8 @@ module sgmii_pcs (
     .clk(rx_clk),
     .reset(),
     .input_data(rx_data),
-    .offset,
-    .comma
+    .offset(offset),
+    .comma(comma)
   );
 
   decoder_8b10b decoder_8b10b_i (
@@ -186,9 +186,9 @@ module sgmii_pcs (
   end
 
   // Move from rx_clk domain to clk domainc
-  one_bit_synchro sync_pcs_locked (
-    .clk(clk),
-    .reset(reset),
+  registered_one_bit_synchro sync_pcs_locked (
+    .in_clk(rx_clk),
+    .out_clk(clk),
     .data_in(pcs_locked_rx),
     .data_out(pcs_locked)
   );
