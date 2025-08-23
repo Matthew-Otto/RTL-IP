@@ -30,8 +30,8 @@ module mini_mac #(
 
   logic       pcs_valid_out;
   logic [7:0] pcs_data_out;
+  logic       pcs_eof_out;
 
-  logic       pcs_ready_in;
   logic       pcs_valid_in;
   logic [7:0] pcs_data_in;
   logic       pcs_eof_in;
@@ -40,12 +40,12 @@ module mini_mac #(
     .clk,
     .reset,
     .pcs_locked,
-    .ready_in(pcs_ready_in),
     .valid_in(pcs_valid_in),
     .data_in(pcs_data_in),
     .eof_in(pcs_eof_in),
     .valid_out(pcs_valid_out),
     .data_out(pcs_data_out),
+    .eof_out(pcs_eof_out),
     .rx_clk,
     .rx_data,
     .rx_bitslip,
@@ -96,16 +96,18 @@ module mini_mac #(
       end
 
       RX_HEADER : begin
-        if (~|rx_cnt)
-          next_rx_state = RX_PAYLOAD;
-        else
-          next_rx_cnt = rx_cnt - 1;
+        if (pcs_valid_out) begin
+          if (~|rx_cnt)
+            next_rx_state = RX_PAYLOAD;
+          else
+            next_rx_cnt = rx_cnt - 1;
+        end
       end
 
       RX_PAYLOAD : begin
-        buffer_wr_en = 1;
+        buffer_wr_en = pcs_valid_out;
 
-        if (~pcs_valid_out) begin
+        if (pcs_eof_out) begin
           eof_wr = 1;
           next_rx_state = RX_IDLE;
         end
@@ -134,9 +136,9 @@ module mini_mac #(
   crc32_8b crc32_8b_rx (
     .clk,
     .reset,
-    .stall(),
     .data_valid(pcs_valid_out),
     .data_in(pcs_data_out),
+    .eof(pcs_eof_out),
     .fcs_good(crc_pass),
     .fcs_bad(crc_fail),
     .crc_out()
@@ -157,8 +159,9 @@ module mini_mac #(
   logic [4:0]  packet_cnt;
   logic        process_packet;
 
-  logic [31:0] tx_crc;
   logic        tx_latch_crc;
+  logic        tx_crc_en;
+  logic [31:0] tx_crc;
   logic [23:0] tx_crc_buffer;
 
   logic [5:0]  tx_pad_len, next_tx_pad_len;
@@ -190,6 +193,7 @@ module mini_mac #(
     pcs_eof_in = 0;
     tx_buffer_ready = 0;
     tx_latch_crc = 0;
+    tx_crc_en = 0;
     process_packet = 0;
     next_tx_pad_len = tx_pad_len;
 
@@ -203,6 +207,7 @@ module mini_mac #(
       end
 
       TX_DEST_MAC : begin
+        tx_crc_en = 1;
         pcs_valid_in = 1;
         pcs_data_in = DEST_MAC[tx_cnt*8+:8];
 
@@ -215,6 +220,7 @@ module mini_mac #(
       end
 
       TX_SRC_MAC : begin
+        tx_crc_en = 1;
         pcs_valid_in = 1;
         pcs_data_in = SRC_MAC[tx_cnt*8+:8];
 
@@ -227,6 +233,7 @@ module mini_mac #(
       end
 
       TX_ETH_TYPE : begin
+        tx_crc_en = 1;
         pcs_valid_in = 1;
         pcs_data_in = ETH_TYPE[tx_cnt*8+:8];
 
@@ -239,6 +246,7 @@ module mini_mac #(
       end
 
       TX_PAYLOAD : begin
+        tx_crc_en = 1;
         pcs_valid_in = 1;
         tx_buffer_ready = 1;
         pcs_data_in = tx_buffer_data;
@@ -253,6 +261,7 @@ module mini_mac #(
       end
 
       TX_PAYLOAD_PAD : begin
+        tx_crc_en = 1;
         pcs_valid_in = 1;
         pcs_data_in = 0;
 
@@ -291,6 +300,8 @@ module mini_mac #(
     endcase
   end
 
+
+  // Buffer entire packets coming into the MAC
   fifo #(
     .WIDTH(9),
     .DEPTH(2048)
@@ -322,9 +333,9 @@ module mini_mac #(
   crc32_8b crc32_8b_tx (
     .clk,
     .reset,
-    .stall(~pcs_ready_in),
-    .data_valid(pcs_valid_in),
+    .data_valid(tx_crc_en),
     .data_in(pcs_data_in),
+    .eof(tx_latch_crc),
     .crc_out(tx_crc),
     .fcs_good(),
     .fcs_bad()

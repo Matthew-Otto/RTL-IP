@@ -5,3 +5,4 @@ sim_build
 quartus
 *.pcap
 *.hier
+*.dump

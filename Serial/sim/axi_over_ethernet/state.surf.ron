@@ -28,8 +28,9 @@
             strs: [
                 "axi_over_ethernet",
                 "eth_mac",
+                "sgmii_pcs_i",
             ],
-            id: Wellen((3)),
+            id: Wellen((7)),
         ))),
         items_tree: (
             items: [
@@ -219,221 +220,39 @@
                     unfolded: true,
                     selected: false,
                 ),
+                (
+                    item_ref: (38),
+                    level: 1,
+                    unfolded: true,
+                    selected: false,
+                ),
             ],
         ),
         displayed_items: {
-            (9): Divider((
+            (33): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "payload_len",
+                    id: Wellen((34)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "payload_len [15:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (29): Divider((
                 color: None,
                 background_color: None,
                 name: None,
-            )),
-            (1): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "clk",
-                    id: Wellen((8)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "clk",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (11): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "rx_ready",
-                    id: Wellen((15)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "rx_ready",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (4): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (15): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (21): Group((
-                name: "RX Channel",
-                color: None,
-                background_color: None,
-                content: [],
-                is_open: false,
-            )),
-            (31): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "opcode",
-                    id: Wellen((31)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "opcode [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (28): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                            "eth_mac",
-                        ],
-                        id: Wellen((3)),
-                    ),
-                    name: "tx_state",
-                    id: Wellen((91)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "…eth_mac.tx_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (26): Group((
-                name: "TX Channel",
-                color: None,
-                background_color: None,
-                content: [],
-                is_open: false,
-            )),
-            (5): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "serial_state",
-                    id: Wellen((23)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "serial_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (13): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "rx_data",
-                    id: Wellen((17)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "rx_data [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (18): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "tx_data",
-                    id: Wellen((21)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "tx_data [7:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (22): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                            "eth_mac",
-                        ],
-                        id: Wellen((3)),
-                    ),
-                    name: "rx_state",
-                    id: Wellen((77)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "…eth_mac.rx_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (30): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                            "eth_mac",
-                            "sgmii_pcs_i",
-                        ],
-                        id: Wellen((7)),
-                    ),
-                    name: "tx_state",
-                    id: Wellen((166)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "…sgmii_pcs_i.tx_state [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: Some("Enum"),
-                field_formats: [],
-                height_scaling_factor: None,
             )),
             (3): Variable((
                 variable_ref: (
@@ -449,172 +268,6 @@
                 color: None,
                 background_color: None,
                 display_name: "reset",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (14): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "rx_eof",
-                    id: Wellen((18)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "rx_eof",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (34): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "rx_discard",
-                    id: Wellen((37)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "rx_discard",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (19): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "tx_eof",
-                    id: Wellen((22)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "tx_eof",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (23): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (32): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "address",
-                    id: Wellen((33)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "address [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (36): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                            "eth_mac",
-                        ],
-                        id: Wellen((3)),
-                    ),
-                    name: "packet_cnt",
-                    id: Wellen((84)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "packet_cnt [4:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (20): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (29): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (27): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (17): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "tx_valid",
-                    id: Wellen((20)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "tx_valid",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (24): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (2): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "axi_over_ethernet",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "serdes_rx_clk",
-                    id: Wellen((11)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "serdes_rx_clk",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -641,6 +294,162 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
+            (19): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "tx_eof",
+                    id: Wellen((22)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "tx_eof",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (18): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "tx_data",
+                    id: Wellen((21)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "axi_over_ethernet.tx_data [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (38): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                            "eth_mac",
+                            "sgmii_pcs_i",
+                        ],
+                        id: Wellen((7)),
+                    ),
+                    name: "tx_char",
+                    id: Wellen((163)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "tx_char [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (28): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                            "eth_mac",
+                        ],
+                        id: Wellen((3)),
+                    ),
+                    name: "tx_state",
+                    id: Wellen((93)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…eth_mac.tx_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (22): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                            "eth_mac",
+                        ],
+                        id: Wellen((3)),
+                    ),
+                    name: "rx_state",
+                    id: Wellen((78)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…eth_mac.rx_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (32): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "address",
+                    id: Wellen((33)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "address [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (13): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_data",
+                    id: Wellen((17)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_data [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (27): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (26): Group((
+                name: "TX Channel",
+                color: None,
+                background_color: None,
+                content: [],
+                is_open: false,
+            )),
             (25): Variable((
                 variable_ref: (
                     path: (
@@ -652,7 +461,7 @@
                         id: Wellen((7)),
                     ),
                     name: "rx_state",
-                    id: Wellen((154)),
+                    id: Wellen((153)),
                 ),
                 color: None,
                 background_color: None,
@@ -663,7 +472,7 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
-            (33): Variable((
+            (17): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -671,17 +480,117 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "payload_len",
-                    id: Wellen((34)),
+                    name: "tx_valid",
+                    id: Wellen((20)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "payload_len [15:0]",
+                display_name: "tx_valid",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
                 field_formats: [],
                 height_scaling_factor: None,
+            )),
+            (14): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_eof",
+                    id: Wellen((18)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_eof",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (11): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_ready",
+                    id: Wellen((15)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_ready",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (24): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (30): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                            "eth_mac",
+                            "sgmii_pcs_i",
+                        ],
+                        id: Wellen((7)),
+                    ),
+                    name: "tx_state",
+                    id: Wellen((164)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "…sgmii_pcs_i.tx_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (36): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                            "eth_mac",
+                        ],
+                        id: Wellen((3)),
+                    ),
+                    name: "packet_cnt",
+                    id: Wellen((85)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "packet_cnt [4:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (21): Group((
+                name: "RX Channel",
+                color: None,
+                background_color: None,
+                content: [],
+                is_open: false,
+            )),
+            (9): Divider((
+                color: None,
+                background_color: None,
+                name: None,
             )),
             (12): Variable((
                 variable_ref: (
@@ -703,12 +612,132 @@
                 field_formats: [],
                 height_scaling_factor: None,
             )),
+            (2): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "serdes_rx_clk",
+                    id: Wellen((11)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "serdes_rx_clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (31): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "opcode",
+                    id: Wellen((31)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "opcode [7:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (23): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (20): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (5): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "serial_state",
+                    id: Wellen((23)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "serial_state [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: Some("Enum"),
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (15): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (1): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "clk",
+                    id: Wellen((8)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "clk",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (4): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (34): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "axi_over_ethernet",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "rx_discard",
+                    id: Wellen((37)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "rx_discard",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
         },
-        display_item_ref_counter: 37,
+        display_item_ref_counter: 39,
         viewports: [
             (
-                curr_left: (0.5732527595698801),
-                curr_right: (0.587325323649715),
+                curr_left: (0.08222337309931411),
+                curr_right: (0.08994656658301367),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -721,7 +750,7 @@
             2342512,
         ])),
         markers: {},
-        focused_item: Some((29)),
+        focused_item: Some((31)),
         focused_transaction: (None, None),
         default_variable_name_type: Unique,
         scroll_offset: 0.0,

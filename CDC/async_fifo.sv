@@ -43,17 +43,19 @@ module async_fifo #(
 
   //// write (in_clk) domain
   assign next_w_ptr_b = w_ptr_b + 1;
-  assign w_ptr_g = w_ptr_b ^ (w_ptr_b >> 1);
   assign next_w_ptr_g = next_w_ptr_b ^ (next_w_ptr_b >> 1);
   assign full = (next_w_ptr_g == r_ptr_g_sync2);
   assign ready_in = ~full && ~reset_in;
   assign wr_en = ready_in && valid_in && ~reset_in;
 
   always_ff @(posedge clk_in or posedge reset_in) begin
-    if (reset_in)
+    if (reset_in) begin
       w_ptr_b <= 0;
-    else if (ready_in && valid_in)
+      w_ptr_g <= 0;
+    end else if (ready_in && valid_in) begin
       w_ptr_b <= next_w_ptr_b;
+      w_ptr_g <= next_w_ptr_b ^ (next_w_ptr_b >> 1);
+    end
   end
 
   always_ff @(posedge clk_in or posedge reset_in) begin
@@ -64,17 +66,19 @@ module async_fifo #(
 
   //// read (clk_out) domain
   assign next_r_ptr_b = r_ptr_b + 1;
-  assign r_ptr_g = r_ptr_b ^ (r_ptr_b >> 1);
   assign empty = (r_ptr_g == w_ptr_g_sync2);
   assign valid_out = ~empty && ~reset_out;
 
   assign r_addr = (ready_out && valid_out) ? next_r_ptr_b : r_ptr_b;
 
   always_ff @(posedge clk_out or posedge reset_out) begin
-    if (reset_out)
+    if (reset_out) begin
       r_ptr_b <= 0;
-    else if (ready_out && valid_out)
+      r_ptr_g <= 0;
+    end else if (ready_out && valid_out) begin
       r_ptr_b <= next_r_ptr_b;
+      r_ptr_g <= next_r_ptr_b ^ (next_r_ptr_b >> 1);
+    end
   end
 
   always_ff @(posedge clk_out or posedge reset_out) begin

@@ -306,7 +306,7 @@ module axi_over_ethernet (
 
 
 
-/*   logic [7:0] ram [(1<<14)-1:0];
+  logic [7:0] ram [(1<<14)-1:0];
 
   always_ff @(posedge clk) begin
     if (ram_we)
@@ -316,16 +316,16 @@ module axi_over_ethernet (
   always_ff @(posedge clk) begin
     ram_r_data <= ram_r_data2;
   end
-    */
+   
 
 
 
-  bram bram64MB (
-		.data    (rx_data),    //   input,   width = 8,    data.datain
-		.q       (ram_r_data),       //  output,   width = 8,       q.dataout
-		.address (ram_addr), //   input,  width = 24, address.address
-		.wren    (ram_we),    //   input,   width = 1,    wren.wren
-		.clock   (clk)    //   input,   width = 1,   clock.clk
-	);
+/*   bram bram64MB (
+    .data    (rx_data),    //   input,   width = 8,    data.datain
+    .q       (ram_r_data),       //  output,   width = 8,       q.dataout
+    .address (ram_addr), //   input,  width = 24, address.address
+    .wren    (ram_we),    //   input,   width = 1,    wren.wren
+    .clock   (clk)    //   input,   width = 1,   clock.clk
+  ); */
 
 endmodule : axi_over_ethernet

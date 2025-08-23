@@ -13,7 +13,6 @@ module sgmii_pcs (
   output logic       pcs_locked,
 
   // input data (TX)
-  output logic       ready_in,
   input  logic       valid_in,
   input  logic [7:0] data_in,
   input  logic       eof_in,
@@ -21,6 +20,7 @@ module sgmii_pcs (
   // output data (RX)
   output logic       valid_out,
   output logic [7:0] data_out,
+  output logic       eof_out,
 
   // SERDES interface
   input  logic       rx_clk,
@@ -48,6 +48,7 @@ module sgmii_pcs (
   
   logic       pcs_locked_rx;
   logic       valid_out_rx;
+  logic       eof_rx;
   logic       rx_even, rx_set_even;
   logic       comma;
   logic [3:0] offset;
@@ -98,6 +99,7 @@ module sgmii_pcs (
     rx_bitslip = 0;
     rx_set_even = 0;
     valid_out_rx = 0;
+    eof_rx = 0;
 
     case (rx_state)
       RX_LOS : begin // LOSS_OF_SYNC
@@ -169,13 +171,14 @@ module sgmii_pcs (
 
       RX_FRAME : begin
         pcs_locked_rx = 1;
+        valid_out_rx = 1;
         if (comma) begin // EOF symbol was missed, error
           pcs_locked_rx = 0;
           next_rx_state = RX_LOS;
-        end else if (dec_ctrl == K29_7) // end of frame
+        end else if (dec_ctrl == K29_7) begin // end of frame
           next_rx_state = RX_EXT;
-        else
-          valid_out_rx = 1;
+          eof_rx = 1;
+        end
       end
 
       RX_EXT : begin
@@ -195,17 +198,17 @@ module sgmii_pcs (
 
   async_fifo #(
     .ADDR_WIDTH(8),
-    .DATA_WIDTH(8)
+    .DATA_WIDTH(9)
   ) cdc_fifo (
     .clk_in(rx_clk),
     .clk_out(clk),
     .reset,
     .ready_in(),
     .valid_in(valid_out_rx),
-    .data_in(dec_data),
+    .data_in({eof_rx,dec_data}),
     .ready_out(1),
     .valid_out(valid_out),
-    .data_out(data_out)
+    .data_out({eof_out,data_out})
   );
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,7 +219,6 @@ module sgmii_pcs (
   logic       tx_buffer_ready;
   logic [7:0] tx_buffer_data;
   logic       tx_buffer_eof;
-  logic       pause_data_in;
 
   logic       tx_even;
   logic [2:0] preamble_cnt;
@@ -225,17 +227,17 @@ module sgmii_pcs (
   logic [7:0] tx_char;
   
   enum {
-    IDLE1,
-    IDLE2,
-    SOF,
-    PREAMBLE,
-    FRAME,
-    EOF,
-    C_EXT
+    TX_IDLE1,
+    TX_IDLE2,
+    TX_SOF,
+    TX_PREAMBLE,
+    TX_FRAME,
+    TX_EOF,
+    TX_C_EXT
   } tx_state, next_tx_state;
 
   always_ff @(posedge clk) begin
-    if (reset) tx_state <= IDLE1;
+    if (reset) tx_state <= TX_IDLE1;
     else       tx_state <= next_tx_state;
 
     if (reset) tx_even <= 1;
@@ -243,7 +245,7 @@ module sgmii_pcs (
 
     if (reset) 
       preamble_cnt <= 0;
-    else if (tx_state == PREAMBLE)
+    else if (tx_state == TX_PREAMBLE)
       preamble_cnt <= preamble_cnt + 1;
   end
 
@@ -254,54 +256,54 @@ module sgmii_pcs (
     tx_buffer_ready = 0;
 
     case (tx_state)
-      IDLE1 : begin
+      TX_IDLE1 : begin
         control_symbol = 1;
         tx_char = K28_5;
-        next_tx_state = IDLE2;
+        next_tx_state = TX_IDLE2;
       end
 
-      IDLE2 : begin
+      TX_IDLE2 : begin
         tx_char = tx_rd ? D16_2 : D5_6;
 
         if (tx_buffer_valid)
-          next_tx_state = SOF;
+          next_tx_state = TX_SOF;
         else
-          next_tx_state = IDLE1;
+          next_tx_state = TX_IDLE1;
       end
 
-      SOF : begin
+      TX_SOF : begin
         control_symbol = 1;
         tx_char = K27_7;
-        next_tx_state = PREAMBLE;
+        next_tx_state = TX_PREAMBLE;
       end
       
-      PREAMBLE : begin
+      TX_PREAMBLE : begin
         if (preamble_cnt == 3'h7) begin
           tx_char = 8'hD5;
-          next_tx_state = FRAME;
+          next_tx_state = TX_FRAME;
         end else begin
           tx_char = 8'h55;
         end
       end
 
-      FRAME : begin
+      TX_FRAME : begin
         tx_buffer_ready = 1;
         tx_char = tx_buffer_data;
         if (tx_buffer_eof || ~tx_buffer_valid) // TODO notify MAC of buffer underrun?
-          next_tx_state = EOF;
+          next_tx_state = TX_EOF;
       end
 
-      EOF : begin
+      TX_EOF : begin
         control_symbol = 1;
         tx_char = K29_7;
-        next_tx_state = C_EXT;
+        next_tx_state = TX_C_EXT;
       end
 
-      C_EXT : begin
+      TX_C_EXT : begin
         control_symbol = 1;
         tx_char = K23_7;
-        next_tx_state = tx_buffer_valid ? SOF
-                      : tx_even ? C_EXT : IDLE1;
+        next_tx_state = tx_buffer_valid ? TX_SOF
+                      : tx_even ? TX_C_EXT : TX_IDLE1;
       end
     endcase
   end
@@ -319,21 +321,18 @@ module sgmii_pcs (
 
   fifo #(
     .WIDTH(9),
-    .DEPTH(16),
-    .ALMOST_FULL_THRESHOLD(2)
+    .DEPTH(16)
   ) tx_fifo (
     .clk,
     .reset,
     .ready_in(),
-    .valid_in(valid_in && ready_in),
+    .valid_in(valid_in),
     .data_in({eof_in,data_in}),
     .ready_out(tx_buffer_ready),
     .valid_out(tx_buffer_valid),
     .data_out({tx_buffer_eof,tx_buffer_data}),
-    .almost_full(pause_data_in),
+    .almost_full(),
     .almost_empty()
   );
-
-  assign ready_in = ~pause_data_in;
 
 endmodule : sgmii_pcs

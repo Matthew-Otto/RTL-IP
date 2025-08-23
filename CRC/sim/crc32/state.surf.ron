@@ -63,6 +63,12 @@
                     selected: false,
                 ),
                 (
+                    item_ref: (21),
+                    level: 0,
+                    unfolded: true,
+                    selected: false,
+                ),
+                (
                     item_ref: (17),
                     level: 0,
                     unfolded: true,
@@ -89,26 +95,6 @@
             ],
         ),
         displayed_items: {
-            (18): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "crc32_8b",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "crc",
-                    id: Wellen((17)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "crc [31:0]",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
             (12): Variable((
                 variable_ref: (
                     path: (
@@ -118,7 +104,7 @@
                         id: Wellen((2)),
                     ),
                     name: "clk",
-                    id: Wellen((7)),
+                    id: Wellen((9)),
                 ),
                 color: None,
                 background_color: None,
@@ -138,11 +124,76 @@
                         id: Wellen((2)),
                     ),
                     name: "fcs_bad",
-                    id: Wellen((12)),
+                    id: Wellen((16)),
                 ),
                 color: None,
                 background_color: None,
                 display_name: "fcs_bad",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (13): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "crc32_8b",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "reset",
+                    id: Wellen((10)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "reset",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (18): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "crc32_8b",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "crc",
+                    id: Wellen((19)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "crc [31:0]",
+                display_name_type: Unique,
+                manual_name: None,
+                format: None,
+                field_formats: [],
+                height_scaling_factor: None,
+            )),
+            (14): Divider((
+                color: None,
+                background_color: None,
+                name: None,
+            )),
+            (15): Variable((
+                variable_ref: (
+                    path: (
+                        strs: [
+                            "crc32_8b",
+                        ],
+                        id: Wellen((2)),
+                    ),
+                    name: "data_in",
+                    id: Wellen((12)),
+                ),
+                color: None,
+                background_color: None,
+                display_name: "data_in [7:0]",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -158,7 +209,7 @@
                         id: Wellen((2)),
                     ),
                     name: "data_valid",
-                    id: Wellen((9)),
+                    id: Wellen((11)),
                 ),
                 color: None,
                 background_color: None,
@@ -178,31 +229,11 @@
                         id: Wellen((2)),
                     ),
                     name: "fcs_good",
-                    id: Wellen((11)),
+                    id: Wellen((15)),
                 ),
                 color: None,
                 background_color: None,
                 display_name: "fcs_good",
-                display_name_type: Unique,
-                manual_name: None,
-                format: None,
-                field_formats: [],
-                height_scaling_factor: None,
-            )),
-            (13): Variable((
-                variable_ref: (
-                    path: (
-                        strs: [
-                            "crc32_8b",
-                        ],
-                        id: Wellen((2)),
-                    ),
-                    name: "reset",
-                    id: Wellen((8)),
-                ),
-                color: None,
-                background_color: None,
-                display_name: "reset",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -214,12 +245,7 @@
                 background_color: None,
                 name: None,
             )),
-            (14): Divider((
-                color: None,
-                background_color: None,
-                name: None,
-            )),
-            (15): Variable((
+            (21): Variable((
                 variable_ref: (
                     path: (
                         strs: [
@@ -227,12 +253,12 @@
                         ],
                         id: Wellen((2)),
                     ),
-                    name: "data_in",
-                    id: Wellen((10)),
+                    name: "eof",
+                    id: Wellen((13)),
                 ),
                 color: None,
                 background_color: None,
-                display_name: "data_in [7:0]",
+                display_name: "eof",
                 display_name_type: Unique,
                 manual_name: None,
                 format: None,
@@ -240,11 +266,11 @@
                 height_scaling_factor: None,
             )),
         },
-        display_item_ref_counter: 20,
+        display_item_ref_counter: 21,
         viewports: [
             (
-                curr_left: (0.8275365260226291),
-                curr_right: (1.0278713615176525),
+                curr_left: (0.9168508265382525),
+                curr_right: (0.9865527927584522),
                 target_left: (0.0),
                 target_right: (1.0),
                 move_start_left: (0.0),
@@ -257,7 +283,7 @@
             1593013,
         ])),
         markers: {},
-        focused_item: Some((8)),
+        focused_item: Some((5)),
         focused_transaction: (None, None),
         default_variable_name_type: Unique,
         scroll_offset: 0.0,

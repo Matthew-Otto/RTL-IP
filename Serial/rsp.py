@@ -50,7 +50,7 @@ MAX_FRAME_SIZE = 1498
 
 
 class RSP:
-    def __init__(self, rtd = 1.0, src_mac=0x123456ABCDEF, dest_mac=0x0007ED123456, dump_sim=False):
+    def __init__(self, rtd = 0.5, src_mac=0x123456ABCDEF, dest_mac=0x0007ED123456, dump_sim=False):
         self.seq_num = 0
         self.unacked_packets = {}
         self.rtd = rtd
@@ -69,10 +69,11 @@ class RSP:
             # register read handler
             self.loop.add_reader(self.sock.fileno(), self._receive)
         
-        self.loop.create_task(self.debug_trigger())
+        #self.loop.create_task(self.debug_trigger())
 
     async def debug_trigger(self):
         await asyncio.sleep(10)
+        print("bbb")
         self.rx_event.set()
 
     def write_data(self, address: int, data: bytes):
@@ -92,11 +93,11 @@ class RSP:
             frame = self._gen_frame(self._gen_write_packet(address, payload))
             await self._send_frame(frame)
             address += len(payload)
+            #await asyncio.sleep(0.001)
 
         while self.unacked_packets:
             await self.rx_event.wait()
             self.rx_event.clear()
-            print("clearing event")
         
 
     async def _read_data_async(self, address: int, byte_cnt: int) -> bytes:
@@ -110,11 +111,15 @@ class RSP:
             byte_cnt -= req_len
             address += req_len
 
+            while len(self.unacked_packets) > 2:
+                await asyncio.sleep(0.01)
+
         # wait for all read responses (abusing sets bc im lazy)
         missing_seq = set(req_seqs)
         missing_seq -= self.rx_buffer.keys()
         while missing_seq:
             await self.rx_event.wait()
+            self.rx_event.clear()
             missing_seq -= self.rx_buffer.keys()
 
         # collect requested data
@@ -181,7 +186,7 @@ class RSP:
         try:
             while True:
                 await asyncio.sleep(self.rtd)
-                if seq_num in self.pending:
+                if seq_num in self.unacked_packets:
                     print(f"Retransmitting packet {seq_num}")
                     self.sock.send(packet)
                 else:
@@ -197,6 +202,12 @@ class RSP:
         packet += address.to_bytes(4)         # address (4 byte)
         packet += len(data).to_bytes(2)       # len (2 bytes)
         packet += data                        # payload (len bytes)
+        return packet
+    
+
+    def _gen_wrick_ack_packet(self) -> bytes:
+        packet =  OPCODE["WRITE_ACK"].to_bytes(1) # opcode (write)
+        packet += self.seq_num.to_bytes(2)        # seqnum (2 byte)
         return packet
 
 
