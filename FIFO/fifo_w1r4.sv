@@ -192,9 +192,4 @@ module fifo_w1r4 #(
     end
   end
 
-  initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, fifo_w1r4);
-  end
-
 endmodule : fifo_w1r4
