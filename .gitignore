@@ -6,3 +6,4 @@ quartus
 *.pcap
 *.hier
 *.dump
+*.vcd
