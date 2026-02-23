@@ -3,11 +3,11 @@
 // that word in the input.
 
 module dedupe #(
-  parameter WORD_WIDTH = 12,
-  parameter WORD_CNT = 16
+  parameter WORD_WIDTH = 16,
+  parameter WORD_CNT = 8
 )(
+  input logic clk,
   input  logic [WORD_WIDTH*WORD_CNT-1:0] data_in,
-  output logic [WORD_WIDTH*WORD_CNT-1:0] data_out,
   output logic [LOG2_WORD_CNT-1:0]       data_out_cnt [WORD_CNT-1:0]
 );
 
@@ -19,8 +19,8 @@ module dedupe #(
   logic [WORD_WIDTH-1:0]    input_words [WORD_CNT-1:0];
 
   logic [COMP_CNT-1:0]      comp;
-  logic [LOG2_WORD_CNT-1:0] dupe_cnt [WORD_CNT-2:0];
-  logic [WORD_CNT-2:0]      disable_out;
+  logic [LOG2_WORD_CNT-1:0] dupe_cnt [WORD_CNT-1:0];
+  logic [WORD_CNT-1:0]      disable_out;
 
   // split input bus into separate words
   always_comb begin : split_input
@@ -49,6 +49,7 @@ module dedupe #(
         k++;
       end
     end
+    dupe_cnt[WORD_CNT-1] = 1;
   end
 
   // disable all duplicated words except one

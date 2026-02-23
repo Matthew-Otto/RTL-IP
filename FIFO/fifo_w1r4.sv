@@ -4,18 +4,19 @@ module fifo_w1r4 #(
   parameter WIDTH = 8, 
   parameter DEPTH = 8
 ) (
-  input  logic             clk,
-  input  logic             reset,
+  input  logic                 clk,
+  input  logic                 reset,
 
   // input
-  output logic             ready_in,
-  input  logic             valid_in,
-  input  logic [WIDTH-1:0] data_in,
+  output logic                 ready_in,
+  input  logic                 valid_in,
+  input  logic [WIDTH-1:0]     data_in,
 
   // output
-  input  logic [3:0]       ready_out,
-  output logic [3:0]       valid_out,
-  output logic [WIDTH-1:0] data_out [3:0]
+  output logic [ADDR_SIZE+1:0] occupancy,
+  input  logic [3:0]           ready_out,
+  output logic [3:0]           valid_out,
+  output logic [WIDTH-1:0]     data_out [3:0]
 );
 
   localparam ADDR_SIZE = $clog2(DEPTH);
@@ -26,9 +27,15 @@ module fifo_w1r4 #(
   logic full, write;
   logic [3:0] read;
   logic [3:0] load;
+  logic [2:0] load_cnt;
   logic [2:0] read_cnt;
 
   logic [3:0] mem_val;
+
+  assign full = (size == DEPTH-1);
+
+  assign ready_in = ~full;
+  assign write = valid_in && ~full;
 
   always_comb begin
     for (int i = 0; i < 4; i++) begin
@@ -41,8 +48,6 @@ module fifo_w1r4 #(
       mem_val[i] = size > i;
     end
   end
-
-
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -143,30 +148,45 @@ module fifo_w1r4 #(
 
   always_comb begin
     case (load)
-      4'b0000 : read_cnt = 0;
+      4'b0000 : load_cnt = 0;
       4'b0001,
       4'b0010,
       4'b0100,
-      4'b1000 : read_cnt = (size >= 1) ? 1 : size;
+      4'b1000 : load_cnt = (size >= 1) ? 1 : size;
       4'b0011,
       4'b0101,
       4'b0110,
       4'b1010,
       4'b1100,
-      4'b1001 : read_cnt = (size >= 2) ? 2 : size;
+      4'b1001 : load_cnt = (size >= 2) ? 2 : size;
       4'b0111,
       4'b1011,
       4'b1101,
-      4'b1110 : read_cnt = (size >= 3) ? 3 : size;
-      4'b1111 : read_cnt = (size >= 4) ? 4 : size;
+      4'b1110 : load_cnt = (size >= 3) ? 3 : size;
+      4'b1111 : load_cnt = (size >= 4) ? 4 : size;
+    endcase
+  end
+  always_comb begin
+    case (read)
+      4'b0000 : read_cnt = 0;
+      4'b0001,
+      4'b0010,
+      4'b0100,
+      4'b1000 : read_cnt = 1;
+      4'b0011,
+      4'b0101,
+      4'b0110,
+      4'b1010,
+      4'b1100,
+      4'b1001 : read_cnt = 2;
+      4'b0111,
+      4'b1011,
+      4'b1101,
+      4'b1110 : read_cnt = 3;
+      4'b1111 : read_cnt = 4;
     endcase
   end
 
-
-  assign full = (size == DEPTH-1);
-
-  assign ready_in = ~full;
-  assign write = valid_in && ~full;
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -180,13 +200,20 @@ module fifo_w1r4 #(
       end
 
       if (|load) begin
-        rd_ptr <= (read_cnt < size) ? rd_ptr + read_cnt : rd_ptr + size;
+        rd_ptr <= (load_cnt < size) ? rd_ptr + load_cnt : rd_ptr + size;
       end
 
       case ({write, |load})
-        2'b11 : size <= (size + 1 < read_cnt) ? 0 : size + 1 - read_cnt;
+        2'b11 : size <= (size + 1 < load_cnt) ? 0 : size + 1 - load_cnt;
         2'b10 : size <= size + 1;
-        2'b01 : size <= (size < read_cnt) ? 0 : size - read_cnt;
+        2'b01 : size <= (size < load_cnt) ? 0 : size - load_cnt;
+        default;
+      endcase
+
+      case ({write, |read})
+        2'b11 : occupancy <= occupancy - read_cnt + 1;
+        2'b10 : occupancy <= occupancy + 1;
+        2'b01 : occupancy <= occupancy - read_cnt;
         default;
       endcase
     end

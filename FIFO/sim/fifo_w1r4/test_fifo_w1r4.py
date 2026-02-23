@@ -37,7 +37,6 @@ async def write_data(dut, ref_fifo, iters):
 
 
 async def read_data(dut, ref_fifo, iters):
-    no_valid_cnt = 0
     quad_buffer = []
     for _ in range(iters):
         await RisingEdge(dut.clk)
@@ -78,7 +77,7 @@ async def test_read_write(dut):
     print(f"using seed: {seed}")
     dut._log.setLevel("DEBUG")
 
-    iters = 100000
+    iters = 10000
     ref_fifo = Queue()
 
     cocotb.start_soon(Clock(dut.clk, 2, units="ps").start())

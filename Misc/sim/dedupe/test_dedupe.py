@@ -18,8 +18,8 @@ async def test_read_write(dut):
 
     iters = 10
 
-    word_cnt = 16
-    word_size = 12
+    word_size = 16
+    word_cnt = 8
 
     cocotb.start_soon(Clock(dut.clk, 2, units="ps").start())
 
