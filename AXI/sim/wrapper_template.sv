@@ -7,10 +7,10 @@ module wrapper_template;
     logic [AXI_DATA_WIDTH-1:0] core_i [NUM_REGS-1:0];
     logic [AXI_DATA_WIDTH-1:0] core_o [NUM_REGS-1:0];
 
-    // 2. Instantiate the Interface (defined by macro)
+    // Instantiate the Interface (defined by macro)
     `INTF_TYPE axi ();
 
-    // 3. Instantiate the DUT (defined by macro)
+    // Instantiate the DUT (defined by macro)
     `DUT_NAME dut (
         .clk(clk),
         .reset(reset),
