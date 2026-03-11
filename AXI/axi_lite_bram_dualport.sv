@@ -32,7 +32,7 @@ module axi_lite_bram_dualport #(
 
     dual_port_bram #(
         .ADDR_WIDTH(ALIGNED_ADDR_WIDTH),
-        .DATA_WIDTH
+        .DATA_WIDTH(DATA_WIDTH)
     ) bram (
         .clk,
         .wr_en_a,
@@ -52,8 +52,8 @@ module axi_lite_bram_dualport #(
     ///////////////////////////////////////////////////////
         
     axi_lite_slave #(
-        .ADDR_WIDTH,
-        .DATA_WIDTH
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH)
     ) axi_lite_port_a (
         .clk,
         .reset,
@@ -70,8 +70,8 @@ module axi_lite_bram_dualport #(
     ///////////////////////////////////////////////////////
 
     axi_lite_slave #(
-        .ADDR_WIDTH,
-        .DATA_WIDTH
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH)
     ) axi_lite_port_b (
         .clk,
         .reset,
@@ -90,7 +90,11 @@ endmodule : axi_lite_bram_dualport
 
 module axi_lite_slave #(
     parameter int ADDR_WIDTH = 10,
-    parameter int DATA_WIDTH = 32
+    parameter int DATA_WIDTH = 32,
+    
+    localparam WORD_COUNT = DATA_WIDTH / 8,
+    localparam ADDR_ALIGN = $clog2(WORD_COUNT),
+    localparam ALIGNED_ADDR_WIDTH = ADDR_WIDTH - ADDR_ALIGN
 ) (
     input  logic                          clk,
     input  logic                          reset,
@@ -104,9 +108,7 @@ module axi_lite_slave #(
     input  logic [DATA_WIDTH-1:0]         read_data
 );
 
-    localparam WORD_COUNT = DATA_WIDTH / 8;
-    localparam ADDR_ALIGN = $clog2(WORD_COUNT);
-    localparam ALIGNED_ADDR_WIDTH = ADDR_WIDTH - ADDR_ALIGN;
+
 
     localparam
         RSP_OKAY = 2'b00,
