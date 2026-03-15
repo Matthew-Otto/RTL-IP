@@ -29,8 +29,8 @@ uart_tx:
 	$(MAKE) DUT=uart_tx
 
 waves:
-	@test -f dump.fst || (echo "Error: dump.fst not found. Simulate a target first." && exit 1)
-	surfer dump.fst
+	@test -f sim_build/dump.fst || (echo "Error: dump.fst not found. Simulate a target first." && exit 1)
+	surfer sim_build/dump.fst
 
 clean::
 	rm -rf __pycache__

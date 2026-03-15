@@ -1,9 +1,24 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import os
 import random
 
 import cocotb
-from cocotb.triggers import Timer, ReadOnly, RisingEdge, FallingEdge, ClockCycles
+from cocotb_tools.runner import get_runner
 from cocotb.clock import Clock
+from cocotb.triggers import Timer, ReadOnly, ReadWrite, ClockCycles, RisingEdge, FallingEdge
+from cocotbext.axi import AxiLiteMaster,AxiLiteMasterWrite,AxiLiteMasterRead, AxiLiteSlaveWrite
+from cocotbext.axi import AxiLiteBus, AxiLiteWriteBus, AxiLiteReadBus, AxiLiteRamRead, AxiLiteRamWrite
 from cocotbext.uart import UartSource, UartSink
+
+
+async def reset(clk, rst):
+    await RisingEdge(clk)
+    rst.value = 1
+    await ClockCycles(clk, 5)
+    rst.value = 0
+    print("DUT reset")
 
 
 async def read_tx(uart_sink, packet_cnt):
@@ -16,18 +31,12 @@ async def read_tx(uart_sink, packet_cnt):
 @cocotb.test()
 async def uart_tx_test_dense(dut):
     uart_sink = UartSink(dut.tx, baud=115200, bits=8)
-
     payload = [0xde, 0xad, 0xbe, 0xef]
 
-    # start system clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
+    # init system
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset(dut.clk, dut.reset)
 
-    # reset
-    dut.reset.value = 1
-    await ClockCycles(dut.clk, 1, rising=True)
-    dut.reset.value = 0
-    await ClockCycles(dut.clk, 1, rising=True)
-    
     # start uart read coroutine
     uart_read = cocotb.start_soon(read_tx(uart_sink, len(payload)))
 
@@ -53,22 +62,16 @@ async def uart_tx_test_dense(dut):
 @cocotb.test()
 async def uart_tx_test_sparse(dut):
     uart_sink = UartSink(dut.tx, baud=115200, bits=8)
-
     payload = [0xba, 0xad, 0xfe, 0xed]
 
-    # start system clock
-    cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
-
-    # reset
-    dut.reset.value = 1
-    await ClockCycles(dut.clk, 1, rising=True)
-    dut.reset.value = 0
-    await ClockCycles(dut.clk, 1, rising=True)
+    # init system
+    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    await reset(dut.clk, dut.reset)
 
     # start uart read coroutine
     uart_read = cocotb.start_soon(read_tx(uart_sink, len(payload)))
 
-    packet_time = (1/115200)*10*1e6
+    packet_time = (1/115200)*10e6
     for b in payload:
         rand =  random.uniform(0.5, 1.5)
         await Timer(int(packet_time * rand), 'us')
@@ -90,3 +93,34 @@ async def uart_tx_test_sparse(dut):
     dut._log.info(f"payload is {payload}")
     dut._log.info(f"tx_data is {tx_data}")
     assert payload == tx_data, "transmitted data does not match payload"
+
+
+def test_runner():
+    module_name = "uart_tx"
+    sim = get_runner("verilator")
+    
+    proj_path = Path(__file__).resolve().parent.parent
+    sources = [proj_path / "uart_tx.sv"]
+
+    sim.build(
+        sources=sources,
+        hdl_toplevel=module_name,
+        always=False,
+        waves=True,
+        build_args=[
+            "-Wno-SELRANGE",
+            "-Wno-WIDTH",
+            "--trace-fst",
+            "--trace-structs",
+        ]
+    )
+
+    sim.test(
+        hdl_toplevel=module_name,
+        test_module=Path(__file__).stem,
+        waves=True,
+        gui=True
+    )
+
+if __name__ == "__main__":
+    test_runner()

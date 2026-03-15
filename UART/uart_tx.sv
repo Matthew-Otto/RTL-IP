@@ -1,6 +1,7 @@
-// UART TX module
-
-module uart_tx #(CLK_RATE, BAUD_RATE)(
+module uart_tx #(
+    parameter int CLK_RATE=100000000,
+    parameter int BAUD_RATE=115200
+)(
     input  logic clk,
     input  logic reset,
 
@@ -10,58 +11,72 @@ module uart_tx #(CLK_RATE, BAUD_RATE)(
     input  logic valid
 );
 
-  localparam int PACKET_SIZE = 10;
-  localparam int CLKS_PER_BAUD = CLK_RATE / BAUD_RATE;
+    localparam int CLKS_PER_BAUD = CLK_RATE / BAUD_RATE;
+    localparam int CNT_WIDTH = $clog2(CLKS_PER_BAUD);
 
-  enum {
-    IDLE,
-    SHIFT,
-    WAIT
-  } state;
+    enum {
+        IDLE,
+        SHIFT,
+        WAIT
+    } state, next_state;
 
-  logic [9:0] shift_reg;
-  logic [31:0] clk_cnt;
-  logic [3:0] bit_cnt;
-
-  assign ready = state == IDLE;
-  assign tx = (state == IDLE) ? 1 : shift_reg[bit_cnt];
+    logic [9:0] shift_reg;
+    logic [3:0] bit_cnt, next_bit_cnt;
+    logic [CNT_WIDTH-1:0] clk_cnt, next_clk_cnt;
 
 
-  always @(posedge clk) begin
-    if (reset) begin
-      state <= IDLE;
-    end else begin
-      case (state) 
-        IDLE : begin
-          bit_cnt <= 0;
-          clk_cnt <= CLKS_PER_BAUD - 2;
-          if (valid) begin
-            shift_reg <= {1'b1, data, 1'b0};  // little endian (STOP, data, START)
-            state <= WAIT;
-          end
-        end
+    always_ff @(posedge clk) begin
+        if (reset) state <= IDLE;
+        else       state <= next_state;
 
-        WAIT : begin
-          if (clk_cnt == 0)
-            state <= SHIFT;
-          else
-            state <= WAIT;
-          clk_cnt <= clk_cnt - 1;
-        end
-
-        SHIFT : begin
-          clk_cnt <= CLKS_PER_BAUD - 2;
-          if (bit_cnt == (PACKET_SIZE-1)) begin
-            state <= IDLE;
-          end else begin
-            bit_cnt <= bit_cnt + 1;
-            state <= WAIT;
-          end
-        end
-
-        default : state <= IDLE;
-      endcase
+        bit_cnt <= next_bit_cnt;
+        clk_cnt <= next_clk_cnt;
     end
-  end
 
-endmodule // uart_tx
+    always_comb begin
+        next_state = state;
+        next_bit_cnt = bit_cnt;
+        next_clk_cnt = clk_cnt;
+
+        ready = 0;
+
+        case (state)
+            IDLE : begin
+                ready = 1;
+                next_clk_cnt = CLKS_PER_BAUD - 2;
+                next_bit_cnt = 9;
+                if (valid)
+                    next_state = WAIT;
+            end
+
+            WAIT : begin
+                next_clk_cnt = clk_cnt - 1;
+                if (clk_cnt == 0)
+                    next_state = SHIFT;
+            end
+
+            SHIFT : begin
+                next_clk_cnt = CLKS_PER_BAUD - 2;
+                next_bit_cnt = bit_cnt - 1;
+                if (bit_cnt == 0)
+                    next_state = IDLE;
+                else
+                    next_state = WAIT;
+            end
+
+            default : next_state = IDLE;
+        endcase
+    end
+
+    always_ff @(posedge clk) begin
+        if (reset)
+            shift_reg <= '1;
+        else if (valid && ready)
+            shift_reg <= {1'b1, data, 1'b0};
+        else if (state == SHIFT)
+            shift_reg <= {1'b1, shift_reg[9:1]};
+    end
+
+    assign tx = shift_reg[0];
+  
+endmodule : uart_tx
