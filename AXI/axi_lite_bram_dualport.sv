@@ -310,15 +310,17 @@ module dual_port_bram #(
 
     logic [DATA_WIDTH-1:0] mem [MEM_DEPTH-1:0];
 
+    // Port A
     always_ff @(posedge clk) begin
-        // Port A
         for (int i = 0; i < (DATA_WIDTH / 8); i++) begin
             if (wr_en_a[i])
                 mem[write_addr_a][(i*8) +: 8] <= write_data_a[(i*8) +: 8];
         end
         read_data_a <= (wr_en_a && (read_addr_a == write_addr_a)) ? write_data_a : mem[read_addr_a];
+    end
 
-        // Port B
+    // Port B
+    always_ff @(posedge clk) begin
         for (int i = 0; i < (DATA_WIDTH / 8); i++) begin
             if (wr_en_b[i])
                 mem[write_addr_b][(i*8) +: 8] <= write_data_b[(i*8) +: 8];
